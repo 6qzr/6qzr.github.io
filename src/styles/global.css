@@ -158,20 +158,16 @@ html {
   -webkit-text-size-adjust: 100%;
 
   /*
-   * Section-by-section scrolling, presentation style.
+   * Section-by-section scrolling, presentation style. One scroll gesture
+   * carries you the whole way to the next slide.
    *
-   * `proximity`, not `mandatory`, and that is a deliberate call. Three
-   * sections are taller than the viewport at 1440x900 (the stack at 1.63
-   * screens, the work grid at 1.49, the timeline at 1.75), and more are on a
-   * laptop. Under `mandatory` the browser fights to pull you to the next snap
-   * point while you are still reading the middle of a tall section, which is
-   * exactly what makes scroll-jacked sites unusable. `proximity` snaps when
-   * you land near a section edge and otherwise leaves scrolling alone.
-   *
-   * Switch this one word to `mandatory` if every section is ever made to fit
-   * in a single screen.
+   * `mandatory` only works because every section is laid out to fit in one
+   * screen. If a section ever grows past the viewport the browser will fight
+   * the reader while they are partway through it, which is what makes
+   * scroll-jacked sites unusable. The media query below is the safety net for
+   * the case this cannot control: a viewport too short to fit a slide.
    */
-  scroll-snap-type: y proximity;
+  scroll-snap-type: y mandatory;
 
   /* Snap targets and anchor links both land under the floating nav without
      this. It also fixes the nav links, which previously did. */
@@ -185,6 +181,9 @@ html {
  */
 main > section {
   scroll-snap-align: start;
+  /* Exactly one screen, with the content centred in it. Sections are laid out
+     to fit; `min-height` rather than `height` so nothing is ever clipped if a
+     translation or a large text setting pushes one over. */
   min-height: 100svh;
   display: grid;
   align-content: center;
@@ -192,6 +191,20 @@ main > section {
 
 footer {
   scroll-snap-align: start;
+}
+
+/*
+ * Safety nets. Mandatory snapping is only safe while a slide fits the screen.
+ *
+ * On a short viewport (a laptop in a video call, a browser with many toolbars)
+ * or a narrow one, where sections stack and grow tall, fall back to
+ * `proximity`: it still snaps when you land near a boundary but never traps
+ * anyone inside a section they cannot scroll through.
+ */
+@media (max-height: 44rem), (max-width: 48rem) {
+  html {
+    scroll-snap-type: y proximity;
+  }
 }
 
 /* Snapping moves the page on the reader's behalf, so it goes when they have
@@ -261,8 +274,8 @@ body {
 }
 .t-h2 {
   font-family: var(--font-display);
-  font-size: clamp(2rem, 4.2vw, 3.25rem);
-  line-height: 1.08;
+  font-size: clamp(1.75rem, 3.2vw, 2.6rem);
+  line-height: 1.1;
   letter-spacing: -0.018em;
   font-weight: 400;
 }
@@ -279,7 +292,7 @@ body {
 }
 .t-small {
   font-size: 0.875rem;
-  line-height: 1.55;
+  line-height: 1.45;
   letter-spacing: 0.004em;
 }
 /* Small caps labels need positive tracking to stay legible. */

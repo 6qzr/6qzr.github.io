@@ -13,9 +13,8 @@ const projects = (await getCollection("projects", ({ data }) => data.featured)).
       <p class="t-eyebrow head__eyebrow on-scene">Selected work</p>
       <h2 class="t-h2 on-scene head__title">Two projects, one for each half.</h2>
       <p class="t-body head__note on-scene">
-        Rather than a long grid of coursework, here are the two that actually
-        carry weight: the graduation project that finds vulnerabilities, and
-        the capstone API I led a team of four to build.
+        The two that carry weight. The rest is on
+        <a href="https://github.com/6qzr" target="_blank" rel="noopener noreferrer">GitHub</a>.
       </p>
     </header>
 
@@ -25,18 +24,13 @@ const projects = (await getCollection("projects", ({ data }) => data.featured)).
       ))}
     </div>
 
-    <p class="more t-small on-scene" data-reveal>
-      Everything else, from C# and Java coursework to SQL practice and
-      front-end experiments, lives on
-      <a href="https://github.com/6qzr" target="_blank" rel="noopener noreferrer">GitHub</a>.
-    </p>
   </div>
 </section>
 
 <style>
   .section {
     position: relative;
-    padding: var(--spacing-phi-6) 1rem;
+    padding: var(--spacing-phi-3) 1rem;
   }
 
   .shell {
@@ -46,11 +40,11 @@ const projects = (await getCollection("projects", ({ data }) => data.featured)).
 
   .head {
     max-width: 50ch;
-    margin: 0 auto var(--spacing-phi-4);
+    margin: 0 auto var(--spacing-phi-2);
     text-align: center;
   }
-  .head__eyebrow { margin: 0 0 0.75rem; }
-  .head__title   { margin: 0 0 var(--spacing-phi-2); }
+  .head__eyebrow { margin: 0 0 0.6rem; }
+  .head__title   { margin: 0 0 0.6rem; }
   .head__note    { margin: 0; opacity: 0.88; }
 
   .grid {
@@ -59,7 +53,7 @@ const projects = (await getCollection("projects", ({ data }) => data.featured)).
   }
 
   .more {
-    margin: var(--spacing-phi-3) 0 0;
+    margin: var(--spacing-phi-2) 0 0;
     text-align: center;
     opacity: 0.85;
   }

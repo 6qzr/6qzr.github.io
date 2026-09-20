@@ -11,18 +11,26 @@ import { timeline, certificates } from "../data/site";
 
     <ol class="timeline">
       {timeline.map((entry, index) => (
-        <li class="entry" data-reveal data-reveal-delay={index * 90}>
+        <li class:list={["entry", { "entry--edu": entry.kind === "education" }]}>
           <div class="entry__marker" aria-hidden="true">
             <span class:list={["entry__dot", { "entry__dot--edu": entry.kind === "education" }]}></span>
           </div>
 
-          <div class="entry__panel glass-deep">
+          {/*
+            data-reveal belongs on the glass panel, not on the <li> around it.
+            A filling opacity animation creates a stacking context, so with it
+            on the wrapper the panel's backdrop-filter sampled that group
+            rather than the page behind, leaving the blur with nothing to blur.
+            These panels looked noticeably more transparent than every other
+            card on the site because of it.
+          */}
+          <div class="entry__panel glass-deep" data-reveal data-reveal-delay={index * 90}>
             <div class="entry__meta">
               <p class="t-small entry__when">{entry.start} to {entry.end}</p>
               <p class="t-small entry__where">{entry.place}</p>
             </div>
 
-            <h3 class="t-h3 on-glass entry__role">{entry.role}</h3>
+            <h3 class="on-glass entry__role">{entry.role}</h3>
             <p class="t-small entry__org">{entry.org}</p>
 
             <ul class="entry__points">
@@ -35,11 +43,13 @@ import { timeline, certificates } from "../data/site";
       ))}
     </ol>
 
+    <!-- One line each. These are short credentials and do not need a panel
+         the size of a work entry. -->
     <div class="certs glass-deep" data-reveal>
       <h3 class="t-eyebrow certs__title">Certificates</h3>
       <ul class="certs__list">
         {certificates.map((certificate) => (
-          <li>
+          <li class="t-small">
             <span class="on-glass certs__name">
               {certificate.url ? (
                 <a href={certificate.url} target="_blank" rel="noopener noreferrer">
@@ -49,7 +59,7 @@ import { timeline, certificates } from "../data/site";
                 certificate.name
               )}
             </span>
-            <span class="t-small certs__issuer">{certificate.issuer}</span>
+            <span class="certs__issuer">{certificate.issuer}</span>
           </li>
         ))}
       </ul>
@@ -60,7 +70,8 @@ import { timeline, certificates } from "../data/site";
 <style>
   .section {
     position: relative;
-    padding: var(--spacing-phi-6) 1rem;
+    /* The densest section on the site, so it gets the tightest frame. */
+    padding: var(--spacing-phi-2) 1rem;
   }
 
   .shell {
@@ -70,15 +81,15 @@ import { timeline, certificates } from "../data/site";
 
   .head {
     max-width: 44ch;
-    margin: 0 auto var(--spacing-phi-4);
+    margin: 0 auto var(--spacing-phi-1);
     text-align: center;
   }
-  .head__eyebrow { margin: 0 0 0.75rem; }
+  .head__eyebrow { margin: 0 0 0.45rem; }
   .head__title   { margin: 0; }
 
   .timeline {
     display: grid;
-    gap: var(--spacing-phi-2);
+    gap: var(--spacing-phi-1);
     margin: 0;
     padding: 0;
     list-style: none;
@@ -126,7 +137,7 @@ import { timeline, certificates } from "../data/site";
   }
 
   .entry__panel {
-    padding: clamp(1.1rem, 2.5vw, 1.618rem);
+    padding: clamp(0.8rem, 1.6vw, 1.05rem);
     border-radius: 1.25rem;
   }
 
@@ -135,7 +146,7 @@ import { timeline, certificates } from "../data/site";
     flex-wrap: wrap;
     justify-content: space-between;
     gap: 0.5rem;
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.25rem;
   }
   .entry__when,
   .entry__where {
@@ -145,6 +156,10 @@ import { timeline, certificates } from "../data/site";
 
   .entry__role {
     margin: 0;
+    font-size: clamp(1.02rem, 1.4vw, 1.2rem);
+    line-height: 1.2;
+    letter-spacing: -0.008em;
+    font-weight: 600;
   }
   .entry__org {
     margin: 0.15rem 0 0;
@@ -154,9 +169,11 @@ import { timeline, certificates } from "../data/site";
 
   .entry__points {
     display: grid;
-    gap: 0.4rem;
-    margin: var(--spacing-phi-1) 0 0;
-    padding-left: 1.1rem;
+    gap: 0.2rem;
+    font-size: 0.84rem;
+    margin: 0.4rem 0 0;
+    line-height: 1.45;
+    padding-left: 1.05rem;
   }
   .entry__points li {
     padding-left: 0.15rem;
@@ -166,28 +183,37 @@ import { timeline, certificates } from "../data/site";
   }
 
   .certs {
-    margin-top: var(--spacing-phi-4);
-    padding: clamp(1.25rem, 3vw, 2rem);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem 1.2rem;
+    margin-top: 0.5rem;
+    padding: clamp(0.7rem, 1.6vw, 1rem) clamp(1.1rem, 2.5vw, 1.618rem);
     border-radius: 1.5rem;
   }
+  /* Inline with the list rather than stacked above it: the label costs a whole
+     line otherwise, and the section has to fit one screen. */
   .certs__title {
-    margin: 0 0 var(--spacing-phi-2);
+    margin: 0;
     color: var(--accent);
+    flex: none;
   }
   .certs__list {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-    gap: var(--spacing-phi-2);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.618rem;
     margin: 0;
     padding: 0;
     list-style: none;
   }
+  /* One line each: a credential name plus its issuer does not need the space
+     of a work entry. */
   .certs__list li {
-    display: grid;
-    gap: 0.15rem;
+    display: flex;
+    align-items: baseline;
+    gap: 0.45rem;
   }
   .certs__name {
-    font-size: 0.9375rem;
     font-weight: 550;
   }
   .certs__name a {
@@ -198,9 +224,34 @@ import { timeline, certificates } from "../data/site";
     color: var(--ink-faint);
   }
 
-  @media (min-width: 46rem) {
-    .entry {
-      grid-template-columns: 1.25rem 1fr;
+  /*
+    Two columns of entries on a wide screen. Stacked, the four entries plus the
+    certificates ran to 1.75 screens, which mandatory snapping cannot hold.
+    The connecting line is dropped here because a single vertical thread makes
+    no sense once entries sit side by side.
+  */
+  @media (min-width: 62rem) {
+    .timeline {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--spacing-phi-2);
     }
+    /* Side by side, a single vertical thread through the entries makes no
+       sense, so the marker column goes and each entry becomes a plain card
+       like every other card on the site. Education keeps its distinction
+       through the accent on the organisation instead of a coloured dot. */
+    .entry {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+    .entry__marker {
+      display: none;
+    }
+  }
+
+  .entry--edu .entry__org {
+    color: var(--sun-500);
+  }
+  :global(.dark) .entry--edu .entry__org {
+    color: var(--sun-400);
   }
 </style>

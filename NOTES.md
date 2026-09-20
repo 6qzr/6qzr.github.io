@@ -29,6 +29,12 @@ updating the path in `site.ts` if the filename changes.
 
 ## Traps
 
+**Put `data-reveal` on the glass panel itself, never on a wrapper around it.**
+A filling opacity animation creates a stacking context, so a `backdrop-filter`
+on a child samples that group instead of the page behind it and the blur has
+nothing to blur. The timeline panels looked visibly more transparent than every
+other card until this was fixed.
+
 **Never put a `style` attribute on an element.** The Content Security Policy
 hashes stylesheets but cannot hash style attributes, so an inline one is
 silently blocked and simply does not apply. This already bit once: the backdrop
@@ -89,10 +95,25 @@ of it and never be caught. It is skipped under `prefers-reduced-motion`, plays
 once per tab, defers while the page is in a background tab, and is skipped
 entirely if the sprite sheet arrives more than two seconds late.
 
-**Section scrolling** uses CSS scroll snap in `proximity` mode, not
-`mandatory`. Three sections are taller than the viewport at 1440x900, and
-`mandatory` would fight the reader while they are partway through one. Switch
-the one word in `global.css` if every section is ever made to fit a screen.
+**Section scrolling** uses CSS scroll snap in `mandatory` mode: one gesture
+carries you the whole way to the next slide, with the content centred.
+
+That only works because **every section fits one screen**. Verified at
+1280x800, 1440x900 and 1536x864, where all seven measure exactly 1.00 screens.
+If a section ever grows past the viewport the browser fights the reader while
+they are partway through it, which is what makes scroll-jacked sites unusable.
+Measure before adding content to a section:
+
+```js
+const vh = document.documentElement.clientHeight;
+[...document.querySelectorAll('main > section')]
+  .map(s => s.id + ' ' + (s.getBoundingClientRect().height / vh).toFixed(2));
+```
+
+Getting there meant laying the dense sections out sideways rather than cutting
+anything: the spiral sits beside the stack list, and the timeline runs in two
+columns with the certificates on one line. `global.css` falls back to
+`proximity` below 44rem tall or 48rem wide, where sections stack and grow.
 
 ## Performance and accessibility
 

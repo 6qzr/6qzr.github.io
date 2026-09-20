@@ -48,42 +48,46 @@ const grouped = (Object.keys(stackGroupLabels) as StackGroup[]).map((group) => (
       </p>
     </header>
 
-    <div class="orbit-wrap" data-reveal>
-      <div class="orbit" data-orbit>
-        <svg class="orbit__guide" viewBox={`0 0 ${VIEW} ${VIEW}`} aria-hidden="true">
-          <path d={spiralPath} fill="none" stroke="currentColor" stroke-width="1" />
-          <circle cx={CENTER} cy={CENTER} r="2.5" fill="currentColor" />
-        </svg>
+    <!-- Side by side on wide screens, so the section fits one slide. -->
+    <div class="split">
+      <div class="orbit-wrap" data-reveal>
+        <div class="orbit" data-orbit>
+          <svg class="orbit__guide" viewBox={`0 0 ${VIEW} ${VIEW}`} aria-hidden="true">
+            <path d={spiralPath} fill="none" stroke="currentColor" stroke-width="1" />
+            <circle cx={CENTER} cy={CENTER} r="2.5" fill="currentColor" />
+          </svg>
 
-        {orbiting.map((item) => (
-          <span
-            class:list={["chip", "glass", { "chip--security": item.group === "security" }]}
-            data-orbit-card
-          >
-            <span class="chip__dot" aria-hidden="true"></span>
-            {item.name}
-          </span>
+          {orbiting.map((item) => (
+            <span
+              class:list={["chip", "glass", { "chip--security": item.group === "security" }]}
+              data-orbit-card
+            >
+              <span class="chip__dot" aria-hidden="true"></span>
+              {item.name}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <!--
+        The spiral shows only the headline tools, and it moves. This grouped
+        list is the authoritative one: it carries everything, it is readable at
+        a glance, and it survives with no motion, no JavaScript and a screen
+        reader.
+      -->
+      <div class="legend glass-deep" data-reveal>
+        {grouped.map((section) => (
+          <div class="legend__group">
+            <h3 class="t-eyebrow legend__label">{section.label}</h3>
+            <ul>
+              {/* on-glass-soft, not on-scene: this list sits on a glass panel,
+                  and on-scene carries a dark halo meant for text over the
+                  photograph, which reads as a smudge here. */}
+              {section.items.map((item) => <li class="t-small on-glass-soft">{item.name}</li>)}
+            </ul>
+          </div>
         ))}
       </div>
-    </div>
-
-    <!--
-      The spiral shows only the headline tools, and it moves. This grouped list
-      is the authoritative one: it carries everything, it is readable at a
-      glance, and it survives with no motion, no JavaScript and a screen reader.
-    -->
-    <div class="legend glass-deep" data-reveal>
-      {grouped.map((section) => (
-        <div class="legend__group">
-          <h3 class="t-eyebrow legend__label">{section.label}</h3>
-          <ul>
-            {/* on-glass-soft, not on-scene: this list sits on a glass panel,
-                and on-scene carries a dark halo meant for text over the
-                photograph, which reads as a smudge here. */}
-            {section.items.map((item) => <li class="t-small on-glass-soft">{item.name}</li>)}
-          </ul>
-        </div>
-      ))}
     </div>
   </div>
 </section>
@@ -98,7 +102,7 @@ const grouped = (Object.keys(stackGroupLabels) as StackGroup[]).map((group) => (
 <style>
   .section {
     position: relative;
-    padding: var(--spacing-phi-6) 1rem;
+    padding: var(--spacing-phi-3) 1rem;
   }
 
   .shell {
@@ -108,12 +112,18 @@ const grouped = (Object.keys(stackGroupLabels) as StackGroup[]).map((group) => (
 
   .head {
     max-width: 48ch;
-    margin: 0 auto var(--spacing-phi-4);
+    margin: 0 auto var(--spacing-phi-3);
     text-align: center;
   }
-  .head__eyebrow { margin: 0 0 0.75rem; }
-  .head__title   { margin: 0 0 var(--spacing-phi-2); }
+  .head__eyebrow { margin: 0 0 0.6rem; }
+  .head__title   { margin: 0 0 0.6rem; }
   .head__note    { margin: 0; opacity: 0.85; }
+
+  .split {
+    display: grid;
+    gap: var(--spacing-phi-3);
+    align-items: center;
+  }
 
   .orbit-wrap {
     display: grid;
@@ -122,7 +132,7 @@ const grouped = (Object.keys(stackGroupLabels) as StackGroup[]).map((group) => (
 
   .orbit {
     position: relative;
-    width: min(100%, 46rem);
+    width: min(100%, 34rem);
     aspect-ratio: 1;
   }
 
@@ -188,10 +198,9 @@ const grouped = (Object.keys(stackGroupLabels) as StackGroup[]).map((group) => (
 
   .legend {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr));
-    gap: var(--spacing-phi-3);
-    margin-top: var(--spacing-phi-4);
-    padding: clamp(1.25rem, 3vw, 2rem);
+    grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+    gap: var(--spacing-phi-2) var(--spacing-phi-3);
+    padding: clamp(1.1rem, 2.5vw, 1.618rem);
     border-radius: clamp(1.25rem, 2.5vw, 1.75rem);
   }
   .legend__label {
@@ -206,9 +215,20 @@ const grouped = (Object.keys(stackGroupLabels) as StackGroup[]).map((group) => (
     list-style: none;
   }
 
+  /* Wide enough for both: the spiral beside the list keeps the section to a
+     single slide instead of stacking to more than one and a half. */
+  @media (min-width: 62rem) {
+    .split {
+      grid-template-columns: 1fr 0.85fr;
+      gap: var(--spacing-phi-4);
+    }
+    .legend {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
   /* On phones the spiral is too small to read, so show the grouped list only. */
   @media (max-width: 40rem) {
     .orbit-wrap { display: none; }
-    .legend { margin-top: 0; }
   }
 </style>

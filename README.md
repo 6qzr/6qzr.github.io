@@ -121,6 +121,26 @@ what sells it at ~20px. Rendered in Cycles, because the light passing through
 the blade is most of what makes a leaf read as organic, and EEVEE only
 approximates it.
 
+**The opening gust.** On arrival the page opens with a dense burst of fast
+leaves that holds for 0.55s, then clears left to right over 0.85s while the
+ambient drift fades up underneath. Total 1.4s, tuned by `INTRO_HOLD`,
+`INTRO_WIPE` and `WIPE_BAND` at the top of `leaves.ts`.
+
+It is deliberately hedged in four ways, because it sits in front of the
+content:
+
+- Skipped entirely under `prefers-reduced-motion`. A burst of full-screen
+  motion is precisely what that preference is asking us not to do.
+- Plays once per tab (`sessionStorage`), so coming back from a project page is
+  not treated as a new arrival.
+- Deferred if the page loaded in a background tab, so it plays when the visitor
+  actually looks rather than being spent on nobody.
+- Skipped if the sprite sheet arrives more than 2s late. By then the visitor is
+  reading, and a gust is an interruption rather than an entrance.
+
+The clearing front is deliberately faster than the leaves themselves. If it
+were not, leaves would ride ahead of it and never be caught.
+
 To change the leaves:
 
 ```bash

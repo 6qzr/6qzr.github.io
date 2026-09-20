@@ -196,12 +196,26 @@ const grouped = (Object.keys(stackGroupLabels) as StackGroup[]).map((group) => (
     opacity: 1;
   }
 
+  /*
+    Multi-column, not grid.
+
+    As a two-column grid the row heights were set by the tallest group in each
+    row, so Security (six items) stretched its row and left Data stranded above
+    a gap with Delivery pushed down below it. Columns flow the groups instead,
+    so each one starts directly under the last.
+  */
   .legend {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
-    gap: var(--spacing-phi-2) var(--spacing-phi-3);
+    columns: 1;
+    column-gap: var(--spacing-phi-3);
     padding: clamp(1.1rem, 2.5vw, 1.618rem);
     border-radius: clamp(1.25rem, 2.5vw, 1.75rem);
+  }
+  .legend__group {
+    break-inside: avoid;
+    margin-bottom: var(--spacing-phi-2);
+  }
+  .legend__group:last-child {
+    margin-bottom: 0;
   }
   .legend__label {
     margin: 0 0 0.6rem;
@@ -223,7 +237,7 @@ const grouped = (Object.keys(stackGroupLabels) as StackGroup[]).map((group) => (
       gap: var(--spacing-phi-4);
     }
     .legend {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      columns: 2;
     }
   }
 

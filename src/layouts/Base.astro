@@ -45,6 +45,8 @@ const personSchema = {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {/* Do not leak the visited path to sites they click through to. */}
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="sitemap" href="/sitemap-index.xml" />
@@ -99,7 +101,18 @@ const personSchema = {
       })();
     </script>
 
-    <script type="application/ld+json" is:inline set:html={JSON.stringify(personSchema)} />
+    {/*
+      `<` is escaped because JSON.stringify does not escape it, so a value
+      containing `</script>` would close this block and everything after it
+      would be parsed as markup. The data here is static, but this is the
+      one place on the site where a string is written into a script element,
+      so it should not depend on that staying true.
+    */}
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={JSON.stringify(personSchema).replace(/</g, "\\u003c")}
+    />
   </head>
 
   <body>

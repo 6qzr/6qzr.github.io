@@ -59,14 +59,28 @@ Overwrite `public/cv/Mohammed-Al-Abri-CV.pdf`. The filename is referenced from
 The brief was: *nature feel, sky blue, tree green, liquid glass, golden ratio,
 wind-blown leaves.* How each of those is implemented:
 
-**The landscape** (`src/components/NatureScene.astro`) is layered SVG, not
-photography. It re-themes from CSS variables between midday and dusk, weighs a
-few KB, and carries no image licensing. Layers drift at different rates on
-scroll for depth.
+**The landscape** is the photograph in `public/images/` — a meadow under
+mountains with a figure at a vintage computer. It is fixed behind the page, so
+content scrolls over it and the parallax comes for free.
 
-To use a real photograph instead, drop one at `public/images/scene.jpg` and pass
-`photo` to `<NatureScene photo />` in `src/layouts/Base.astro`. The SVG stays
-behind it as the themed fallback.
+It ships at four widths in WebP and JPEG (`scene-480` … `scene-1600`), served
+through a `<picture>` with `srcset`, and preloaded in `<head>` because it is the
+largest paint on the page. A desktop pulls ~220KB rather than the 2.6MB source.
+Regenerate the derivatives from a new source with the Pillow snippet in the
+commit history, or any image tool — just keep the filenames.
+
+Dark mode grades the same photograph down to dusk with a CSS filter rather than
+loading a second image.
+
+Behind the photo sits a layered SVG landscape (`NatureScene.astro`) that
+re-themes from CSS variables. It is what shows while the photo downloads and if
+the photo ever 404s. Pass `photo={false}` to use the drawn scene alone.
+
+**Composition note:** the photo puts a figure dead centre. The hero copy
+therefore sits upper-left, over sky and mountain, so the two never compete —
+and the hero carries its own soft diagonal wash (`.hero::before`) so the text
+stays legible even where it crosses sunlit grass. If the background is ever
+swapped for one with a different focal point, revisit both.
 
 **Liquid glass** is `.glass` and `.glass-deep` in `global.css`. Material weight
 encodes hierarchy — the heavier blur is for surfaces carrying dense text — and

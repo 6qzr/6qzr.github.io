@@ -5,41 +5,38 @@ const lines = person.headline.split("\n");
 ---
 
 <section class="hero" id="top">
-  <div class="hero__inner">
-    <p class="hero__eyebrow t-eyebrow on-scene">
-      <span class="hero__dot" aria-hidden="true"></span>
-      {person.location}
-    </p>
+  <div class="hero__shell">
+    <div class="hero__inner">
+      <p class="hero__eyebrow t-eyebrow on-scene">
+        <span class="hero__dot" aria-hidden="true"></span>
+        {person.location}
+        <span class="hero__sep" aria-hidden="true">·</span>
+        {person.roles.join(" · ")}
+      </p>
 
-    <h1 class="t-display on-scene hero__headline">
-      {lines.map((line) => <span class="hero__line">{line}</span>)}
-    </h1>
+      <h1 class="t-display on-scene hero__headline">
+        {lines.map((line) => <span class="hero__line">{line}</span>)}
+      </h1>
 
-    <p class="hero__lede t-body on-scene">
-      {person.summary}
-    </p>
+      <p class="hero__lede t-body on-scene">
+        {person.summary}
+      </p>
 
-    <div class="hero__actions">
-      <a class="btn btn--primary press" href="#work">
-        See the work
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M5 12h13M12 5l7 7-7 7" />
-        </svg>
-      </a>
-      <a class="btn btn--glass glass press" href={person.cv} download>
-        Download CV
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14" />
-        </svg>
-      </a>
+      <div class="hero__actions">
+        <a class="btn btn--primary press" href="#work">
+          See the work
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h13M12 5l7 7-7 7" />
+          </svg>
+        </a>
+        <a class="btn btn--glass glass press" href={person.cv} download>
+          Download CV
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14" />
+          </svg>
+        </a>
+      </div>
     </div>
-
-    <!-- Two disciplines, stated once, near the top. -->
-    <ul class="hero__tracks">
-      {person.roles.map((role) => (
-        <li class="hero__track glass">{role}</li>
-      ))}
-    </ul>
   </div>
 
   <a class="hero__cue on-scene" href="#about" aria-label="Scroll to about">
@@ -48,26 +45,65 @@ const lines = person.headline.split("\n");
 </section>
 
 <style>
+  /*
+    The photograph puts a figure at a desk dead centre. Hero copy therefore
+    lives in the upper left, over sky and mountain, so the two never fight for
+    the same pixels — and the person in the meadow stays the thing you look at.
+  */
   .hero {
     position: relative;
     display: grid;
-    place-items: center;
+    align-content: start;
     min-height: 100svh;
-    padding: 7rem 1rem 5rem;
-    text-align: center;
+    padding: clamp(6.5rem, 16vh, 9.5rem) 1rem 5rem;
+  }
+
+  /*
+    A local wash behind the copy. The scene scrim only darkens the top band, so
+    on a short viewport the lede and buttons would land on sunlit grass and lose
+    all contrast. Anchoring a soft diagonal gradient to the hero itself means
+    the copy carries its own legibility wherever it falls — and it reads as
+    atmosphere rather than as a panel.
+  */
+  .hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      102deg,
+      rgb(4 16 28 / 0.66) 0%,
+      rgb(4 16 28 / 0.46) 26%,
+      rgb(4 16 28 / 0.16) 48%,
+      rgb(4 16 28 / 0) 66%
+    );
+    /* The wash is bounded by the hero, but the scene behind it keeps going.
+       Feather the bottom edge or the gradient ends in a hard horizontal seam
+       straight across the mountains. */
+    -webkit-mask-image: linear-gradient(to bottom, #000 45%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 45%, transparent 100%);
+  }
+
+  .hero__shell {
+    position: relative;
+    width: min(100%, 72rem);
+    margin-inline: auto;
   }
 
   .hero__inner {
-    width: min(100%, 54rem);
     display: flex;
     flex-direction: column;
-    align-items: center;
-    /* Golden-ratio rhythm, from the token scale. */
+    align-items: flex-start;
+    /* Wide enough for the headline to hold two lines; the lede is constrained
+       separately so the reading measure stays comfortable. */
+    max-width: 54rem;
     gap: var(--spacing-phi-3);
+    text-align: left;
   }
 
   .hero__eyebrow {
-    display: inline-flex;
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 0.5rem;
     margin: 0;
@@ -78,6 +114,10 @@ const lines = person.headline.split("\n");
     border-radius: 999px;
     background: var(--accent);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 28%, transparent);
+    flex: none;
+  }
+  .hero__sep {
+    opacity: 0.5;
   }
 
   .hero__headline {
@@ -89,16 +129,15 @@ const lines = person.headline.split("\n");
   }
 
   .hero__lede {
-    max-width: 44ch;
+    max-width: 40ch;
     margin: 0;
-    /* Slightly heavier than body default: this sits over a moving scene. */
+    /* Slightly heavier than body default: this sits over a photograph. */
     font-weight: 450;
   }
 
   .hero__actions {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
     gap: 0.6rem;
   }
 
@@ -123,35 +162,21 @@ const lines = person.headline.split("\n");
   .btn--primary {
     background: var(--accent);
     color: var(--accent-ink);
-    box-shadow: 0 6px 20px -6px color-mix(in srgb, var(--accent) 60%, transparent);
+    box-shadow: 0 6px 20px -6px rgb(4 16 28 / 0.5);
   }
   .btn--primary:hover {
     background: color-mix(in srgb, var(--accent) 88%, #000);
   }
 
   .btn--glass {
-    color: var(--ink);
+    /* Over the photograph this button is on a dark field in both themes, so it
+       takes light text rather than the theme's body ink. */
+    color: #fff;
+    background: rgb(255 255 255 / 0.14);
+    border-color: rgb(255 255 255 / 0.32);
   }
   .btn--glass:hover {
-    background: var(--glass-bg-deep);
-  }
-
-  .hero__tracks {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.5rem;
-    margin: var(--spacing-phi-2) 0 0;
-    padding: 0;
-    list-style: none;
-  }
-  .hero__track {
-    padding: 0.35rem 0.85rem;
-    border-radius: 999px;
-    font-size: 0.8125rem;
-    font-weight: 500;
-    letter-spacing: 0.004em;
-    color: var(--ink);
+    background: rgb(255 255 255 / 0.24);
   }
 
   .hero__cue {
@@ -182,5 +207,27 @@ const lines = person.headline.split("\n");
   }
   @media (prefers-reduced-motion: reduce) {
     .hero__cue span { animation: none; }
+  }
+
+  /* On a phone the photo crops tight around the figure, so the copy centres
+     again in the sky band above it — and the wash becomes vertical to match. */
+  @media (max-width: 40rem) {
+    .hero::before {
+      background: linear-gradient(
+        to bottom,
+        rgb(4 16 28 / 0.66) 0%,
+        rgb(4 16 28 / 0.5) 42%,
+        rgb(4 16 28 / 0.18) 68%,
+        rgb(4 16 28 / 0) 88%
+      );
+    }
+    .hero__inner {
+      align-items: center;
+      text-align: center;
+    }
+    .hero__actions,
+    .hero__eyebrow {
+      justify-content: center;
+    }
   }
 </style>

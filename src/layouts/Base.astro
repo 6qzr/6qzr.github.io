@@ -13,7 +13,7 @@ interface Props {
 const { title, description = person.summary } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site).toString();
-const ogImage = new URL("/og.png", Astro.site).toString();
+const ogImage = new URL("/og.jpg", Astro.site).toString();
 
 /** JSON-LD matters here: this is a credibility site, so what a search engine
  *  and a link preview understand about him is part of the deliverable. */
@@ -48,6 +48,21 @@ const personSchema = {
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="sitemap" href="/sitemap-index.xml" />
+
+    {/*
+      The backdrop is the largest paint on the page. Preloading it with the
+      same srcset the <picture> uses means the browser starts the right file
+      immediately, instead of waiting to discover it in the markup.
+    */}
+    <link
+      rel="preload"
+      as="image"
+      type="image/webp"
+      href="/images/scene-1200.webp"
+      imagesrcset="/images/scene-480.webp 480w, /images/scene-800.webp 800w, /images/scene-1200.webp 1200w, /images/scene-1600.webp 1600w"
+      imagesizes="100vw"
+      fetchpriority="high"
+    />
 
     <title>{title}</title>
     <meta name="description" content={description} />

@@ -56,13 +56,12 @@
   --ink-soft:      #3d5468;
   --ink-faint:     #6b8296;
 
-  /* Text over the landscape. At midday the scene is pale, so ink must be dark
-     and the halo light — white text over a bright meadow is unreadable. */
-  --ink-on-scene:  #0b2133;
-  --scene-veil:    rgb(255 255 255 / 0.40);
+  /* Text over the landscape. The photograph's sky is darkened by the scene
+     scrim, so on-scene text is light in both themes and the halo is dark. */
+  --ink-on-scene:  #ffffff;
   --on-scene-shadow:
-    0 1px 2px rgb(255 255 255 / 0.8),
-    0 2px 16px rgb(255 255 255 / 0.55);
+    0 1px 2px rgb(4 16 28 / 0.5),
+    0 2px 20px rgb(4 16 28 / 0.4);
 
   --accent:        var(--tree-600);
   --accent-soft:   var(--tree-500);
@@ -97,12 +96,10 @@
   --ink-soft:      #a7becd;
   --ink-faint:     #6d8799;
 
-  /* At dusk the relationship inverts: light ink, dark halo. */
   --ink-on-scene:  #f2f8fd;
-  --scene-veil:    rgb(4 18 28 / 0.34);
   --on-scene-shadow:
-    0 1px 2px rgb(4 18 28 / 0.45),
-    0 2px 18px rgb(4 18 28 / 0.35);
+    0 1px 2px rgb(2 9 16 / 0.6),
+    0 2px 22px rgb(2 9 16 / 0.45);
 
   --accent:        var(--tree-300);
   --accent-soft:   var(--tree-400);
@@ -185,10 +182,13 @@ body {
 /* ---------------------------------------------------------------------------
    Typography — tracking and leading are size-specific, never one value.
 --------------------------------------------------------------------------- */
+/* Sized so that "I build things carefully," holds on one line inside the hero
+   measure at every width above a phone. Bigger than this and the headline
+   breaks into four ragged lines. */
 .t-display {
   font-family: var(--font-display);
-  font-size: clamp(2.75rem, 7.5vw, 6.25rem);
-  line-height: 0.98;
+  font-size: clamp(2.35rem, 6vw, 4.75rem);
+  line-height: 1.0;
   letter-spacing: -0.025em;
   font-weight: 400;
 }

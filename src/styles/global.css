@@ -58,10 +58,13 @@
 
   /* Text over the landscape. The photograph's sky is darkened by the scene
      scrim, so on-scene text is light in both themes and the halo is dark. */
+  /* The scene scrim is deliberately light so the photograph keeps its
+     brightness, so the halo on the text works harder instead. */
   --ink-on-scene:  #ffffff;
   --on-scene-shadow:
-    0 1px 2px rgb(4 16 28 / 0.5),
-    0 2px 20px rgb(4 16 28 / 0.4);
+    0 1px 2px rgb(4 16 28 / 0.55),
+    0 1px 12px rgb(4 16 28 / 0.45),
+    0 2px 28px rgb(4 16 28 / 0.3);
 
   --accent:        var(--tree-600);
   --accent-soft:   var(--tree-500);

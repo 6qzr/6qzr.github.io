@@ -36,7 +36,7 @@ export const about = {
   title: "Curious first,\nengineer second.",
   paragraphs: [
     "I am a Computer Science graduate from Sultan Qaboos University, where I specialised in cybersecurity and computing infrastructure. What actually drives me is simpler than that: I want to understand how a thing works all the way down, and I am not satisfied until I do.",
-    "That curiosity pulls in two directions at once. One half of me wants to build — to design the data model, get the architecture right, and ship something people rely on. The other half immediately wants to know where it breaks, who could abuse it, and what happens on the worst day.",
+    "That curiosity pulls in two directions at once. One half of me wants to build: to design the data model, get the architecture right, and ship something people rely on. The other half immediately wants to know where it breaks, who could abuse it, and what happens on the worst day.",
     "I have found those two instincts are the same instinct. The people who build most carefully are usually the ones who have spent time breaking things.",
   ],
   /** Small, human facts. These especially should become his own. */
@@ -60,7 +60,7 @@ export const duality = {
       key: "build",
       label: "Building",
       lede: "Backend systems that hold up under their own weight.",
-      body: "Layered ASP.NET Core APIs, relational models designed before a line of code is written, and delivery managed properly — branches, sprints, tracked issues, review. I care about the parts nobody sees: separation of concerns, honest data contracts, migrations that do not ruin someone's afternoon.",
+      body: "Layered ASP.NET Core APIs, relational models designed before a line of code is written, and delivery managed properly: branches, sprints, tracked issues, review. I care about the parts nobody sees: separation of concerns, honest data contracts, migrations that do not ruin someone's afternoon.",
       points: [
         "ASP.NET Core Web API, three-layer architecture",
         "Entity Framework Core and SQL Server",
@@ -72,7 +72,7 @@ export const duality = {
       key: "break",
       label: "Breaking",
       lede: "The same systems, viewed by someone looking for a way in.",
-      body: "A rotation across SOC, application security, GRC and network security at Ooredoo taught me what enterprise defence actually looks like day to day. My graduation project went the other way — building the tooling that finds vulnerabilities, rather than waiting to be told about them.",
+      body: "A rotation across SOC, application security, GRC and network security at Ooredoo taught me what enterprise defence actually looks like day to day. My graduation project went the other way, building the tooling that finds vulnerabilities rather than waiting to be told about them.",
       points: [
         "SIEM monitoring and incident response",
         "Nmap, Wireshark, MITRE ATT&CK",
@@ -83,26 +83,33 @@ export const duality = {
   ],
 } as const;
 
-/** The cards that ride the golden spiral. Short labels only — they move. */
+/**
+ * The full stack, listed under the spiral.
+ *
+ * `spotlight` marks the ones that ride the golden spiral. Only a handful can:
+ * a golden spiral widens by phi every quarter turn, so the arc simply does not
+ * have room for eighteen readable pills without them overlapping into mush.
+ * The spiral shows the headline technologies; the list below carries the rest.
+ */
 export const stack = [
-  { name: "C#", group: "language" },
-  { name: "ASP.NET Core", group: "backend" },
-  { name: "EF Core", group: "backend" },
-  { name: "SQL Server", group: "data" },
-  { name: "Java", group: "language" },
-  { name: "Python", group: "language" },
-  { name: "SQL", group: "data" },
-  { name: "Spring Boot", group: "backend" },
-  { name: "REST APIs", group: "backend" },
-  { name: "JWT Auth", group: "security" },
-  { name: "SIEM", group: "security" },
-  { name: "Nmap", group: "security" },
-  { name: "Wireshark", group: "security" },
-  { name: "MITRE ATT&CK", group: "security" },
-  { name: "Cryptography", group: "security" },
-  { name: "Secure SDLC", group: "security" },
-  { name: "Git", group: "devops" },
-  { name: "GitHub Actions", group: "devops" },
+  { name: "C#", group: "language", spotlight: true },
+  { name: "ASP.NET Core", group: "backend", spotlight: true },
+  { name: "EF Core", group: "backend", spotlight: true },
+  { name: "SQL Server", group: "data", spotlight: true },
+  { name: "Java", group: "language", spotlight: false },
+  { name: "Python", group: "language", spotlight: true },
+  { name: "SQL", group: "data", spotlight: false },
+  { name: "Spring Boot", group: "backend", spotlight: false },
+  { name: "REST APIs", group: "backend", spotlight: false },
+  { name: "JWT Auth", group: "security", spotlight: false },
+  { name: "SIEM", group: "security", spotlight: true },
+  { name: "Nmap", group: "security", spotlight: true },
+  { name: "Wireshark", group: "security", spotlight: true },
+  { name: "MITRE ATT&CK", group: "security", spotlight: false },
+  { name: "Cryptography", group: "security", spotlight: false },
+  { name: "Secure SDLC", group: "security", spotlight: false },
+  { name: "Git", group: "devops", spotlight: false },
+  { name: "GitHub Actions", group: "devops", spotlight: true },
 ] as const;
 
 export type StackGroup = (typeof stack)[number]["group"];
@@ -126,7 +133,7 @@ export const timeline = [
     points: [
       "Led a 4-person team on a citizen issue-reporting Web API, owning architecture decisions, branching strategy and the integrity of a shared codebase.",
       "Designed and validated a 10-entity relational model, resolving 1:M and M:N cardinality before implementation began.",
-      "Built the API on a three-layer architecture — repository, service, controller — with EF Core, SQL Server, soft deletes and role-based access scoping.",
+      "Built the API on a three-layer architecture (repository, service, controller) with EF Core, SQL Server, soft deletes and role-based access scoping.",
       "Secured endpoints with JWT authentication and DTO-based request and response contracts.",
     ],
   },

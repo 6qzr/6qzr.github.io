@@ -14,7 +14,7 @@ interface Props {
 }
 const { photo = true } = Astro.props;
 
-const widths = [480, 800, 1200, 1600];
+const widths = [480, 800, 1200, 1670];
 const webpSet = widths.map((w) => `/images/scene-${w}.webp ${w}w`).join(", ");
 const jpgSet = widths.map((w) => `/images/scene-${w}.jpg ${w}w`).join(", ");
 ---
@@ -120,7 +120,7 @@ const jpgSet = widths.map((w) => `/images/scene-${w}.jpg ${w}w`).join(", ");
         <source type="image/webp" srcset={webpSet} sizes="100vw" />
         <img
           class="scene__photo"
-          src="/images/scene-1600.jpg"
+          src="/images/scene-1670.jpg"
           srcset={jpgSet}
           sizes="100vw"
           alt=""
@@ -169,35 +169,26 @@ const jpgSet = widths.map((w) => `/images/scene-${w}.jpg ${w}w`).join(", ");
   /* Dusk is the same place at a different hour, so the photo is graded rather
      than swapped for a second image. */
   :global(.dark) .scene__photo {
-    filter: brightness(0.42) saturate(0.78) contrast(1.06) hue-rotate(-6deg);
+    filter: brightness(0.5) saturate(0.8) contrast(1.04) hue-rotate(-6deg);
   }
 
   /*
-    Two jobs. The top band darkens the sky so the display type has a consistent
-    field to sit on whatever the clouds are doing behind it; the bottom fades
-    the photo into the page background, where the glass panels live.
-    The middle is deliberately left clear — that is where the figure sits.
+    In daylight this does one job only: fade the photo into the page background
+    low down, where the glass panels live. It deliberately does NOT darken the
+    sky. Stacking a scene scrim under the hero's own wash took the top-left to
+    roughly 0.87 opacity and drained the photograph of the brightness that made
+    it worth using. Legibility is the hero's problem, handled locally there.
   */
   .scene__scrim {
     position: absolute;
     inset: 0;
-    background:
-      linear-gradient(
-        to bottom,
-        rgb(6 20 34 / 0.62) 0%,
-        rgb(6 20 34 / 0.34) 26%,
-        rgb(6 20 34 / 0) 48%
-      ),
-      linear-gradient(to top, var(--bg) 0%, rgb(0 0 0 / 0) 34%);
+    background: linear-gradient(to top, var(--bg) 0%, rgb(0 0 0 / 0) 34%);
   }
+  /* At dusk the photo is already graded down, so it needs only a light cool
+     wash to settle it. */
   :global(.dark) .scene__scrim {
     background:
-      linear-gradient(
-        to bottom,
-        rgb(3 11 19 / 0.68) 0%,
-        rgb(3 11 19 / 0.38) 26%,
-        rgb(3 11 19 / 0) 48%
-      ),
+      linear-gradient(to bottom, rgb(3 11 19 / 0.3) 0%, rgb(3 11 19 / 0) 42%),
       linear-gradient(to top, var(--bg) 0%, rgb(0 0 0 / 0) 34%);
   }
 

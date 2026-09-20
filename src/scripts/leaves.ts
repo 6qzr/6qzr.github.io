@@ -1,11 +1,22 @@
 /**
  * Wind-blown leaves drifting across a layer above the page.
  *
- * One canvas, one rAF loop, `transform`/`opacity`-free DOM — the whole effect
- * is a single composited layer, so it does not interact with page layout at
- * all. It is decoration: it never blocks pointer events and the site is
- * complete without it.
+ * The leaves are a sprite sheet rendered in Blender (see tools/render_leaves.py):
+ * three colour variants, each a full 360-degree turn about the leaf's long axis
+ * across 24 frames. Stepping through a row plays a real lit 3D tumble, with the
+ * leaf going edge-on and flat again, which a flat 2D shape cannot fake. The row
+ * loops seamlessly because the rotation completes exactly one turn.
+ *
+ * One canvas, one rAF loop, no DOM. The whole effect is a single composited
+ * layer. It is decoration: pointer events are off, and the site is complete
+ * without it, so every failure path here simply draws nothing.
  */
+
+const SHEET_SRC = "/images/leaves.webp";
+const FRAMES = 24;
+const VARIANTS = 3;
+const TILE = 64;
+const MAX_DPR = 2;
 
 interface Leaf {
   x: number;
@@ -13,15 +24,16 @@ interface Leaf {
   size: number;
   /** Depth in [0,1]: 0 is far (small, slow, faint), 1 is near. */
   depth: number;
+  /** Which colour row of the sheet this leaf uses. */
+  variant: number;
+  /** In-plane rotation, on top of the rendered tumble. */
   angle: number;
   spin: number;
-  /** Phase of the flutter oscillation, so leaves do not beat in unison. */
-  flutter: number;
-  flutterRate: number;
+  /** Position within the tumble cycle, in turns. */
+  phase: number;
+  phaseRate: number;
   drift: number;
 }
-
-const MAX_DPR = 2;
 
 export function initLeaves(canvas: HTMLCanvasElement): () => void {
   const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -37,32 +49,56 @@ export function initLeaves(canvas: HTMLCanvasElement): () => void {
   /** Slowly wandering gust strength, so the wind is never metronomic. */
   let gustPhase = Math.random() * Math.PI * 2;
 
-  const leafColor = (): string => {
-    const tint = getComputedStyle(document.documentElement)
-      .getPropertyValue("--leaf-tint")
-      .trim();
-    return tint || "#4d9738";
-  };
-  let color = leafColor();
+  let sheet: CanvasImageSource | null = null;
+  /** Theme-graded copy of the sheet, rebuilt only when the theme changes. */
+  let graded: HTMLCanvasElement | null = null;
 
-  /** Leaf count scales with viewport area, with a hard ceiling. */
+  const isDark = (): boolean => document.documentElement.classList.contains("dark");
+
+  /**
+   * At dusk the leaves are lit by a dimmer sky. Pre-grading the whole sheet
+   * once beats setting a canvas filter on every leaf on every frame.
+   */
+  const grade = (): void => {
+    if (!sheet) return;
+    const w = FRAMES * TILE;
+    const h = VARIANTS * TILE;
+    const off = document.createElement("canvas");
+    off.width = w;
+    off.height = h;
+    const ctx = off.getContext("2d");
+    if (!ctx) return;
+
+    ctx.drawImage(sheet, 0, 0, w, h);
+    if (isDark()) {
+      // `source-atop` keeps the leaf alpha and tints only the leaf itself.
+      ctx.globalCompositeOperation = "source-atop";
+      ctx.fillStyle = "rgba(10, 28, 40, 0.55)";
+      ctx.fillRect(0, 0, w, h);
+    }
+    graded = off;
+  };
+
+  /** Leaf count scales with viewport, with a hard ceiling. */
   const targetCount = (): number => {
-    if (width < 640) return 9;
-    if (width < 1100) return 14;
-    return 20;
+    if (width < 640) return 8;
+    if (width < 1100) return 13;
+    return 18;
   };
 
   const spawn = (offscreen: boolean): Leaf => {
     const depth = Math.random();
     return {
-      x: offscreen ? -40 - Math.random() * 220 : Math.random() * width,
+      x: offscreen ? -60 - Math.random() * 240 : Math.random() * width,
       y: Math.random() * height,
-      size: 5 + depth * 9,
+      size: 9 + depth * 15,
       depth,
+      variant: Math.floor(Math.random() * VARIANTS),
       angle: Math.random() * Math.PI * 2,
-      spin: (Math.random() - 0.5) * 0.9,
-      flutter: Math.random() * Math.PI * 2,
-      flutterRate: 1.1 + Math.random() * 1.5,
+      spin: (Math.random() - 0.5) * 0.7,
+      phase: Math.random(),
+      // Turns per second. Nearer leaves tumble a little faster.
+      phaseRate: 0.22 + Math.random() * 0.3,
       drift: 0.4 + Math.random() * 0.8,
     };
   };
@@ -86,37 +122,26 @@ export function initLeaves(canvas: HTMLCanvasElement): () => void {
   };
 
   const drawLeaf = (leaf: Leaf): void => {
-    const { size } = leaf;
-    // scaleY simulates the leaf turning edge-on as it flutters: at the extremes
-    // it nearly vanishes, which reads as rotation in 3D without the cost of it.
-    const turn = Math.cos(leaf.flutter);
+    if (!graded) return;
+    const col = Math.floor(leaf.phase * FRAMES) % FRAMES;
+    const size = leaf.size;
 
     context.save();
     context.translate(leaf.x, leaf.y);
     context.rotate(leaf.angle);
-    context.scale(1, Math.max(0.12, Math.abs(turn)));
-    // Nearer leaves are more opaque; all of them stay faint enough to read
-    // text through.
-    context.globalAlpha = 0.14 + leaf.depth * 0.26;
-    context.fillStyle = color;
-
-    context.beginPath();
-    context.moveTo(0, -size);
-    context.bezierCurveTo(size * 0.82, -size * 0.42, size * 0.82, size * 0.42, 0, size);
-    context.bezierCurveTo(-size * 0.82, size * 0.42, -size * 0.82, -size * 0.42, 0, -size);
-    context.fill();
-
-    // Midrib, only on the larger foreground leaves where it is actually visible.
-    if (leaf.depth > 0.55) {
-      context.globalAlpha *= 0.5;
-      context.strokeStyle = color;
-      context.lineWidth = Math.max(0.5, size * 0.07);
-      context.beginPath();
-      context.moveTo(0, -size * 0.82);
-      context.lineTo(0, size * 0.82);
-      context.stroke();
-    }
-
+    // Nearer leaves are more opaque; all stay faint enough to read text through.
+    context.globalAlpha = 0.2 + leaf.depth * 0.42;
+    context.drawImage(
+      graded,
+      col * TILE,
+      leaf.variant * TILE,
+      TILE,
+      TILE,
+      -size,
+      -size,
+      size * 2,
+      size * 2,
+    );
     context.restore();
   };
 
@@ -135,16 +160,15 @@ export function initLeaves(canvas: HTMLCanvasElement): () => void {
     for (const leaf of leaves) {
       const speed = (0.55 + leaf.depth * 1.75) * gust;
 
-      leaf.flutter += leaf.flutterRate * 0.045 * delta;
+      leaf.phase = (leaf.phase + leaf.phaseRate * (delta / 60)) % 1;
       leaf.x += speed * delta;
-      // Leaves fall gently and sway; the sway is tied to the same flutter phase
-      // so the sideways drift and the turn look like one motion.
-      leaf.y += (leaf.drift * 0.35 + Math.sin(leaf.flutter) * 0.55) * delta;
-      leaf.angle += leaf.spin * 0.012 * delta;
+      // Leaves fall gently and sway. The sway is tied to the tumble phase, so
+      // the sideways drift and the turn read as one motion.
+      leaf.y += (leaf.drift * 0.32 + Math.sin(leaf.phase * Math.PI * 2) * 0.6) * delta;
+      leaf.angle += leaf.spin * 0.01 * delta;
 
-      // Recycle off the right edge / bottom back to the left.
-      if (leaf.x - leaf.size > width + 40 || leaf.y - leaf.size > height + 40) {
-        Object.assign(leaf, spawn(true), { y: Math.random() * height * 0.75 });
+      if (leaf.x - leaf.size > width + 60 || leaf.y - leaf.size > height + 60) {
+        Object.assign(leaf, spawn(true), { y: Math.random() * height * 0.7 });
       }
 
       drawLeaf(leaf);
@@ -154,7 +178,7 @@ export function initLeaves(canvas: HTMLCanvasElement): () => void {
   };
 
   const start = (): void => {
-    if (running || reducedMotion.matches) return;
+    if (running || reducedMotion.matches || !graded) return;
     running = true;
     lastTime = 0;
     frame = requestAnimationFrame(step);
@@ -179,9 +203,8 @@ export function initLeaves(canvas: HTMLCanvasElement): () => void {
     }
   };
 
-  // The leaf tint differs between midday and dusk.
   const themeObserver = new MutationObserver(() => {
-    color = leafColor();
+    grade();
   });
   themeObserver.observe(document.documentElement, {
     attributes: true,
@@ -192,7 +215,20 @@ export function initLeaves(canvas: HTMLCanvasElement): () => void {
   window.addEventListener("resize", resize, { passive: true });
   document.addEventListener("visibilitychange", onVisibility);
   reducedMotion.addEventListener("change", onMotionPreference);
-  start();
+
+  // Only fetch the sprite sheet if the leaves will actually run. Under reduced
+  // motion this is 48KB nobody needs.
+  if (!reducedMotion.matches) {
+    const image = new Image();
+    image.decoding = "async";
+    image.src = SHEET_SRC;
+    image.onload = () => {
+      sheet = image;
+      grade();
+      start();
+    };
+    // No handler on error: the layer is decorative, so it stays empty.
+  }
 
   return () => {
     stop();

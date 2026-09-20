@@ -17,17 +17,24 @@
 const PHI = 1.618033988749895;
 const QUARTER_TURN = Math.PI / 2;
 
-/** How much bigger the outermost card is than the one at the eye. */
-const RADIUS_RATIO = 12;
-
 /**
- * Angular span that produces exactly RADIUS_RATIO of growth on a golden
- * spiral — about 1.3 turns. Derived, not eyeballed.
+ * How much bigger the outer end of the spiral is than the eye. At the original
+ * 12 the inner cards were specks; 6 keeps the whole path legible while still
+ * giving a real sense of depth.
  */
-const THETA_SPAN = (Math.log(RADIUS_RATIO) / Math.log(PHI)) * QUARTER_TURN;
+const RADIUS_RATIO = 6;
 
-/** Full cycles per second. One card completes the spiral every ~28s. */
-const SPEED = 1 / 28;
+/*
+ * The angular span is not a constant here: the angle is derived per frame from
+ * the radius, by inverting the growth law. RADIUS_RATIO of 6 works out to about
+ * 0.93 of a turn.
+ */
+
+/** One card walks the whole spiral every ~30 seconds. */
+const SPEED = 1 / 30;
+
+/** Scale of a card at the eye. The outermost is always 1. */
+const MIN_SCALE = 0.55;
 
 interface OrbitCard {
   element: HTMLElement;
@@ -54,21 +61,32 @@ export function initOrbit(container: HTMLElement): () => void {
   let running = false;
   let lastTime = 0;
   let clock = 0;
-  let paused = false;
 
   const measure = (): void => {
     const rect = container.getBoundingClientRect();
     // Leave room for the card itself so the outermost one never clips.
-    radiusMax = Math.max(80, Math.min(rect.width, rect.height) / 2 - 64);
+    radiusMax = Math.max(80, Math.min(rect.width, rect.height) / 2 - 80);
   };
 
   const place = (card: OrbitCard): void => {
     let t = (clock * SPEED + card.offset) % 1;
     if (inward) t = 1 - t;
 
-    const theta = t * THETA_SPAN;
-    // The golden growth law. At t=0 the card sits at the eye.
-    const radius = (radiusMax / RADIUS_RATIO) * Math.pow(PHI, theta / QUARTER_TURN);
+    /*
+      Walk the spiral by radius, not by angle.
+
+      On a logarithmic spiral, arc length is proportional to radius, so
+      advancing the radius at a constant rate means moving along the curve at a
+      constant speed, and cards spaced evenly in `t` end up evenly spaced along
+      the path. Stepping the angle instead (the obvious way) makes the outer
+      cards race while the inner ones crawl, and bunches them all up at the eye.
+      The path traced is identical; only the pacing along it changes.
+    */
+    const radiusMin = radiusMax / RADIUS_RATIO;
+    const radius = radiusMin + t * (radiusMax - radiusMin);
+
+    // Invert the golden growth law to get the angle this radius sits at.
+    const theta = (Math.log(radius / radiusMin) / Math.log(PHI)) * QUARTER_TURN;
 
     const x = Math.cos(theta) * radius;
     const y = Math.sin(theta) * radius;
@@ -76,12 +94,14 @@ export function initOrbit(container: HTMLElement): () => void {
     // Scale tracks radius, so distance from the eye reads as distance from the
     // viewer. Cards stay upright: a card rotated to the spiral tangent looks
     // clever and is unreadable.
-    const scale = 0.34 + 0.66 * (radius / radiusMax);
+    const scale = MIN_SCALE + (1 - MIN_SCALE) * (radius / radiusMax);
 
     // Dissolve at both ends of the path so cards never pop in or out. The
     // curve is the same at each end, so entry and exit mirror one another.
-    const fadeIn = Math.min(1, t / 0.14);
-    const fadeOut = Math.min(1, (1 - t) / 0.16);
+    const fadeIn = Math.min(1, t / 0.12);
+    const fadeOut = Math.min(1, (1 - t) / 0.14);
+    // Never fully transparent in the middle of the path: a card should read as
+    // present the whole way round, not ghost in and out.
     const opacity = Math.max(0, Math.min(fadeIn, fadeOut));
 
     card.element.style.transform =
@@ -95,7 +115,7 @@ export function initOrbit(container: HTMLElement): () => void {
     if (!running) return;
     const delta = lastTime === 0 ? 0 : Math.min((time - lastTime) / 1000, 0.1);
     lastTime = time;
-    if (!paused) clock += delta;
+    clock += delta;
 
     for (const card of cards) place(card);
     frame = requestAnimationFrame(step);
@@ -150,10 +170,6 @@ export function initOrbit(container: HTMLElement): () => void {
     observer.observe(container);
   }
 
-  // Let people stop the motion to actually read a card.
-  const hold = (): void => { paused = true; };
-  const release = (): void => { paused = false; };
-
   const onVisibility = (): void => {
     if (document.hidden) stop();
     else start();
@@ -172,10 +188,6 @@ export function initOrbit(container: HTMLElement): () => void {
     applyMotion();
   }
 
-  container.addEventListener("pointerenter", hold);
-  container.addEventListener("pointerleave", release);
-  container.addEventListener("focusin", hold);
-  container.addEventListener("focusout", release);
   window.addEventListener("resize", onResize, { passive: true });
   document.addEventListener("visibilitychange", onVisibility);
   reducedMotion.addEventListener("change", onMotionPreference);
@@ -183,10 +195,6 @@ export function initOrbit(container: HTMLElement): () => void {
   return () => {
     stop();
     observer?.disconnect();
-    container.removeEventListener("pointerenter", hold);
-    container.removeEventListener("pointerleave", release);
-    container.removeEventListener("focusin", hold);
-    container.removeEventListener("focusout", release);
     window.removeEventListener("resize", onResize);
     document.removeEventListener("visibilitychange", onVisibility);
     reducedMotion.removeEventListener("change", onMotionPreference);

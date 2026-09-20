@@ -103,7 +103,31 @@ it — spiralling inward and vanishing at the golden point — set
 
 **Leaves** (`src/scripts/leaves.ts`) are one canvas above the page, with a
 wandering gust so the wind is never metronomic. Pointer events are off and the
-layer carries no information.
+layer carries no information, so nothing is lost if it never loads.
+
+The leaves themselves are rendered in Blender, not drawn in code. The sheet is
+28 frames by 3 variants at 72px (`public/images/leaves.webp`, 90KB, fetched
+only when motion is allowed). Each row is one full turn about the leaf's long
+axis, so the leaf goes edge-on and flat again the way a real one does, and
+because the turn completes exactly once across the row the loop is seamless.
+The three rows differ in silhouette as well as colour.
+
+Veins are geometry rather than texture: a raised midrib plus narrow gaussian
+ridges swept off it. Real ridges catch the light as the leaf turns, which is
+what sells it at ~20px. Rendered in Cycles, because the light passing through
+the blade is most of what makes a leaf read as organic, and EEVEE only
+approximates it.
+
+To change the leaves:
+
+```bash
+blender -b -P tools/render_leaves.py   # renders frames to a temp dir
+python tools/build_leaf_sheet.py       # assembles public/images/leaves.webp
+```
+
+`FRAMES`, the variant count and the tile size are duplicated in
+`tools/render_leaves.py`, `tools/build_leaf_sheet.py` and `src/scripts/leaves.ts`.
+Change all three together or the sheet will be sampled at the wrong offsets.
 
 ### Performance and accessibility
 

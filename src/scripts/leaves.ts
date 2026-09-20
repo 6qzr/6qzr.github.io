@@ -12,10 +12,14 @@
  * without it, so every failure path here simply draws nothing.
  */
 
+/*
+ * These must match tools/render_leaves.py and tools/build_leaf_sheet.py.
+ * The three rows are different leaf shapes as well as different colours.
+ */
 const SHEET_SRC = "/images/leaves.webp";
-const FRAMES = 24;
+const FRAMES = 28;
 const VARIANTS = 3;
-const TILE = 64;
+const TILE = 72;
 const MAX_DPR = 2;
 
 interface Leaf {
@@ -81,9 +85,9 @@ export function initLeaves(canvas: HTMLCanvasElement): () => void {
 
   /** Leaf count scales with viewport, with a hard ceiling. */
   const targetCount = (): number => {
-    if (width < 640) return 8;
-    if (width < 1100) return 13;
-    return 18;
+    if (width < 640) return 11;
+    if (width < 1100) return 18;
+    return 26;
   };
 
   const spawn = (offscreen: boolean): Leaf => {
@@ -91,7 +95,7 @@ export function initLeaves(canvas: HTMLCanvasElement): () => void {
     return {
       x: offscreen ? -60 - Math.random() * 240 : Math.random() * width,
       y: Math.random() * height,
-      size: 9 + depth * 15,
+      size: 10 + depth * 17,
       depth,
       variant: Math.floor(Math.random() * VARIANTS),
       angle: Math.random() * Math.PI * 2,
@@ -130,7 +134,7 @@ export function initLeaves(canvas: HTMLCanvasElement): () => void {
     context.translate(leaf.x, leaf.y);
     context.rotate(leaf.angle);
     // Nearer leaves are more opaque; all stay faint enough to read text through.
-    context.globalAlpha = 0.2 + leaf.depth * 0.42;
+    context.globalAlpha = 0.26 + leaf.depth * 0.46;
     context.drawImage(
       graded,
       col * TILE,

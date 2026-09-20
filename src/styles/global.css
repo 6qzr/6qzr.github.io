@@ -156,6 +156,50 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+
+  /*
+   * Section-by-section scrolling, presentation style.
+   *
+   * `proximity`, not `mandatory`, and that is a deliberate call. Three
+   * sections are taller than the viewport at 1440x900 (the stack at 1.63
+   * screens, the work grid at 1.49, the timeline at 1.75), and more are on a
+   * laptop. Under `mandatory` the browser fights to pull you to the next snap
+   * point while you are still reading the middle of a tall section, which is
+   * exactly what makes scroll-jacked sites unusable. `proximity` snaps when
+   * you land near a section edge and otherwise leaves scrolling alone.
+   *
+   * Switch this one word to `mandatory` if every section is ever made to fit
+   * in a single screen.
+   */
+  scroll-snap-type: y proximity;
+
+  /* Snap targets and anchor links both land under the floating nav without
+     this. It also fixes the nav links, which previously did. */
+  scroll-padding-top: 5rem;
+}
+
+/*
+ * Every section is a slide. `min-height` gives the short ones a full screen so
+ * the rhythm is even, and centring keeps their content off the top edge.
+ * Sections taller than a screen simply stay tall and scroll normally.
+ */
+main > section {
+  scroll-snap-align: start;
+  min-height: 100svh;
+  display: grid;
+  align-content: center;
+}
+
+footer {
+  scroll-snap-align: start;
+}
+
+/* Snapping moves the page on the reader's behalf, so it goes when they have
+   asked for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-snap-type: none;
+  }
 }
 
 /*

@@ -96,10 +96,13 @@ const titleLines = about.title.split("\n");
       align-items: start;
       column-gap: var(--spacing-phi-5);
     }
-    .about__head {
-      position: sticky;
-      top: 6rem;
-    }
+    /*
+      Not sticky. It used to pin to the viewport while the text column scrolled
+      past, which read as the heading drifting away from its own panel. Now
+      that each section fills the screen and snaps, the heading stays put
+      relative to the panel it belongs to, which is what it should always have
+      done.
+    */
     .about__facts {
       grid-column: 1 / -1;
     }

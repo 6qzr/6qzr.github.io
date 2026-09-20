@@ -1,13 +1,15 @@
 ---
-import { scenePlaceholder } from "../data/scene-placeholder";
-
 /**
  * The fixed landscape that every glass surface floats above.
  *
- * Behind the photograph sits an inline 430-byte blurred copy of the same
- * photograph, so the first paint already looks like the scene that is loading.
- * An earlier version used a drawn SVG landscape here, which was visibly a
- * different picture and flashed on every refresh.
+ * Behind the photograph sits a 430-byte blurred copy of the same photograph,
+ * so the first paint already looks like the scene that is loading. An earlier
+ * version used a drawn SVG landscape here, which was visibly a different
+ * picture and flashed on every refresh.
+ *
+ * The placeholder comes in as `--scene-placeholder` from a generated
+ * stylesheet rather than a style attribute on the element: the CSP hashes
+ * stylesheets but cannot hash style attributes, so an inline one is blocked.
  */
 const widths = [480, 800, 1200, 1670];
 const webpSet = widths.map((w) => `/images/scene-${w}.webp ${w}w`).join(", ");
@@ -15,7 +17,7 @@ const jpgSet = widths.map((w) => `/images/scene-${w}.jpg ${w}w`).join(", ");
 ---
 
 <div class="scene" aria-hidden="true">
-  <div class="scene__placeholder" style={`background-image:url("${scenePlaceholder}")`}></div>
+  <div class="scene__placeholder"></div>
 
   <picture>
     <source type="image/webp" srcset={webpSet} sizes="100vw" />
@@ -58,6 +60,7 @@ const jpgSet = widths.map((w) => `/images/scene-${w}.jpg ${w}w`).join(", ");
   }
 
   .scene__placeholder {
+    background-image: var(--scene-placeholder);
     background-size: cover;
     background-position: 50% 46%;
     /* Scaled up so the 32px source has no visible pixel edges, and blurred so

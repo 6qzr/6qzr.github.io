@@ -168,6 +168,46 @@ Change all three together or the sheet will be sampled at the wrong offsets.
 
 ---
 
+## Security
+
+The site is static: no server, no database, no authentication, no user input,
+no cookies and no third-party scripts. Most of the OWASP Top 10 has no surface
+here. What does apply:
+
+**Dependencies (A06).** `npm audit` reports 0 vulnerabilities. Keep it that
+way; run it before each deploy.
+
+**Content Security Policy (A05).** Configured under `security.csp` in
+`astro.config.mjs`. Astro hashes every inline script and style it emits, so
+the policy needs no `unsafe-inline`. Two consequences worth remembering:
+
+- **Never add a `style` attribute to an element.** CSP hashes stylesheets but
+  cannot hash style attributes, so an inline one is silently blocked. This is
+  why the backdrop placeholder lives in a generated stylesheet as
+  `--scene-placeholder` rather than on the element. Setting styles from
+  JavaScript (`el.style.x = y`) is fine, which is what the leaf and orbit
+  scripts do.
+- `frame-ancestors` is omitted because it is ignored in a meta policy and
+  logs an error on every load. Clickjacking cannot be prevented on GitHub
+  Pages, which cannot send response headers. Low risk here, since there is
+  nothing to hijack. Add it plus `X-Frame-Options` as real headers if this
+  ever moves to a host that can send them.
+
+**Injection (A03).** The only place a value is written into a script element
+is the JSON-LD block in `Base.astro`, where `<` is escaped to `<`.
+`JSON.stringify` does not escape it, so a value containing `</script>` would
+otherwise close the block early.
+
+**Supply chain (A08).** Workflow permissions are minimal (`contents: read`,
+`pages: write`, `id-token: write`), every action is pinned to an immutable
+commit SHA rather than a movable tag, `npm ci` builds from the lockfile, and
+checkout does not persist its token because nothing here pushes.
+
+**Deliberately public.** The CV PDF is served from `public/cv/` and contains a
+phone number and email address, and the contact section exposes the email as a
+plain `mailto:`. Both are intentional, both will be scraped. Remove the phone
+number from the PDF if that matters.
+
 ## Deploying
 
 The site deploys on every push to `main` via `.github/workflows/deploy.yml`.

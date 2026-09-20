@@ -157,6 +157,25 @@ html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
 }
+
+/*
+ * Hide the scrollbar chrome so the landscape runs edge to edge.
+ *
+ * This hides it only. Scrolling stays fully functional: wheel, trackpad,
+ * touch, keyboard (arrows, Page Up/Down, Home/End, space) and programmatic
+ * scrolling all still work, because nothing here sets `overflow: hidden`.
+ */
+html,
+body {
+  scrollbar-width: none;      /* Firefox */
+  -ms-overflow-style: none;   /* legacy Edge */
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;              /* Chrome, Safari, current Edge */
+}
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
 }

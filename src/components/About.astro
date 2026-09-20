@@ -1,0 +1,107 @@
+---
+import { about } from "../data/site";
+
+const titleLines = about.title.split("\n");
+---
+
+<section class="section" id="about">
+  <div class="shell">
+    <div class="about glass-deep" data-reveal>
+      <div class="about__head">
+        <p class="t-eyebrow about__eyebrow">{about.eyebrow}</p>
+        <h2 class="t-h2 on-glass about__title">
+          {titleLines.map((line) => <span>{line}</span>)}
+        </h2>
+      </div>
+
+      <div class="about__body">
+        {about.paragraphs.map((paragraph) => (
+          <p class="t-body on-glass-soft">{paragraph}</p>
+        ))}
+      </div>
+
+      <dl class="about__facts">
+        {about.facts.map((fact) => (
+          <div class="about__fact">
+            <dt class="t-eyebrow">{fact.label}</dt>
+            <dd class="on-glass">{fact.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </div>
+</section>
+
+<style>
+  .section {
+    position: relative;
+    padding: var(--spacing-phi-6) 1rem;
+  }
+
+  .shell {
+    width: min(100%, 68rem);
+    margin-inline: auto;
+  }
+
+  .about {
+    display: grid;
+    gap: var(--spacing-phi-4);
+    padding: clamp(1.5rem, 4vw, 3.25rem);
+    border-radius: clamp(1.25rem, 2.5vw, 2rem);
+  }
+
+  .about__eyebrow {
+    margin: 0 0 0.75rem;
+    color: var(--accent);
+  }
+
+  .about__title {
+    margin: 0;
+  }
+  .about__title span {
+    display: block;
+  }
+
+  .about__body {
+    display: grid;
+    gap: var(--spacing-phi-2);
+    max-width: 62ch;
+  }
+  .about__body p {
+    margin: 0;
+  }
+
+  .about__facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    gap: var(--spacing-phi-2);
+    margin: 0;
+    padding-top: var(--spacing-phi-2);
+    border-top: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  }
+  .about__fact dt {
+    margin: 0 0 0.3rem;
+    color: var(--ink-faint);
+  }
+  .about__fact dd {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 500;
+  }
+
+  /* Golden-ratio split: the text column is phi times the heading column. */
+  @media (min-width: 60rem) {
+    .about {
+      grid-template-columns: 1fr 1.618fr;
+      align-items: start;
+      column-gap: var(--spacing-phi-5);
+    }
+    .about__head {
+      position: sticky;
+      top: 6rem;
+    }
+    .about__facts {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

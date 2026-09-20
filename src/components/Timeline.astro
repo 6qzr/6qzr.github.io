@@ -1,0 +1,206 @@
+---
+import { timeline, certificates } from "../data/site";
+---
+
+<section class="section" id="path">
+  <div class="shell">
+    <header class="head" data-reveal>
+      <p class="t-eyebrow head__eyebrow on-scene">The path so far</p>
+      <h2 class="t-h2 on-scene head__title">Where I have been.</h2>
+    </header>
+
+    <ol class="timeline">
+      {timeline.map((entry, index) => (
+        <li class="entry" data-reveal data-reveal-delay={index * 90}>
+          <div class="entry__marker" aria-hidden="true">
+            <span class:list={["entry__dot", { "entry__dot--edu": entry.kind === "education" }]}></span>
+          </div>
+
+          <div class="entry__panel glass-deep">
+            <div class="entry__meta">
+              <p class="t-small entry__when">{entry.start} — {entry.end}</p>
+              <p class="t-small entry__where">{entry.place}</p>
+            </div>
+
+            <h3 class="t-h3 on-glass entry__role">{entry.role}</h3>
+            <p class="t-small entry__org">{entry.org}</p>
+
+            <ul class="entry__points">
+              {entry.points.map((point) => (
+                <li class="t-small on-glass-soft">{point}</li>
+              ))}
+            </ul>
+          </div>
+        </li>
+      ))}
+    </ol>
+
+    <div class="certs glass-deep" data-reveal>
+      <h3 class="t-eyebrow certs__title">Certificates</h3>
+      <ul class="certs__list">
+        {certificates.map((certificate) => (
+          <li>
+            <span class="on-glass certs__name">
+              {certificate.url ? (
+                <a href={certificate.url} target="_blank" rel="noopener noreferrer">
+                  {certificate.name}
+                </a>
+              ) : (
+                certificate.name
+              )}
+            </span>
+            <span class="t-small certs__issuer">{certificate.issuer}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .section {
+    position: relative;
+    padding: var(--spacing-phi-6) 1rem;
+  }
+
+  .shell {
+    width: min(100%, 60rem);
+    margin-inline: auto;
+  }
+
+  .head {
+    max-width: 44ch;
+    margin: 0 auto var(--spacing-phi-4);
+    text-align: center;
+  }
+  .head__eyebrow { margin: 0 0 0.75rem; }
+  .head__title   { margin: 0; }
+
+  .timeline {
+    display: grid;
+    gap: var(--spacing-phi-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .entry {
+    display: grid;
+    grid-template-columns: 1.25rem 1fr;
+    gap: 1rem;
+  }
+
+  /* The connecting line is drawn on the marker column so it tracks the panels
+     exactly, whatever height they end up. */
+  .entry__marker {
+    position: relative;
+    display: flex;
+    justify-content: center;
+  }
+  .entry__marker::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: calc(-1 * var(--spacing-phi-2));
+    width: 1px;
+    background: color-mix(in srgb, var(--ink) 18%, transparent);
+  }
+  .entry:last-of-type .entry__marker::before {
+    display: none;
+  }
+
+  .entry__dot {
+    position: relative;
+    margin-top: 1.6rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 999px;
+    background: var(--accent);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--bg) 70%, transparent);
+  }
+  .entry__dot--edu {
+    background: var(--sun-500);
+  }
+  :global(.dark) .entry__dot--edu {
+    background: var(--sun-400);
+  }
+
+  .entry__panel {
+    padding: clamp(1.1rem, 2.5vw, 1.618rem);
+    border-radius: 1.25rem;
+  }
+
+  .entry__meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+  }
+  .entry__when,
+  .entry__where {
+    margin: 0;
+    color: var(--ink-faint);
+  }
+
+  .entry__role {
+    margin: 0;
+  }
+  .entry__org {
+    margin: 0.15rem 0 0;
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .entry__points {
+    display: grid;
+    gap: 0.4rem;
+    margin: var(--spacing-phi-1) 0 0;
+    padding-left: 1.1rem;
+  }
+  .entry__points li {
+    padding-left: 0.15rem;
+  }
+  .entry__points li::marker {
+    color: color-mix(in srgb, var(--ink) 35%, transparent);
+  }
+
+  .certs {
+    margin-top: var(--spacing-phi-4);
+    padding: clamp(1.25rem, 3vw, 2rem);
+    border-radius: 1.5rem;
+  }
+  .certs__title {
+    margin: 0 0 var(--spacing-phi-2);
+    color: var(--accent);
+  }
+  .certs__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: var(--spacing-phi-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .certs__list li {
+    display: grid;
+    gap: 0.15rem;
+  }
+  .certs__name {
+    font-size: 0.9375rem;
+    font-weight: 550;
+  }
+  .certs__name a {
+    color: inherit;
+    text-underline-offset: 3px;
+  }
+  .certs__issuer {
+    color: var(--ink-faint);
+  }
+
+  @media (min-width: 46rem) {
+    .entry {
+      grid-template-columns: 1.25rem 1fr;
+    }
+  }
+</style>

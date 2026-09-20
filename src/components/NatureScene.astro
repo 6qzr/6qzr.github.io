@@ -1,0 +1,190 @@
+---
+/**
+ * The fixed landscape that every glass surface floats above.
+ *
+ * Drawn as layered SVG rather than photography so that it (a) re-themes
+ * between midday and dusk from CSS variables alone, (b) costs ~6KB instead of
+ * a multi-megabyte hero image, and (c) carries no licensing baggage.
+ *
+ * To use a real photograph instead, drop one at `public/images/scene.jpg` and
+ * set `photo` to true — the SVG stays behind it as the themed fallback.
+ */
+interface Props {
+  photo?: boolean;
+}
+const { photo = false } = Astro.props;
+---
+
+<div class="scene" aria-hidden="true">
+  <svg
+    class="scene__svg"
+    viewBox="0 0 1600 900"
+    preserveAspectRatio="xMidYMax slice"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <defs>
+      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="var(--scene-sky-top)" />
+        <stop offset="55%" stop-color="var(--scene-sky-mid)" />
+        <stop offset="100%" stop-color="var(--scene-sky-low)" />
+      </linearGradient>
+
+      <radialGradient id="sunGlow" cx="0.72" cy="0.24" r="0.42">
+        <stop offset="0%" stop-color="var(--scene-sun)" />
+        <stop offset="100%" stop-color="transparent" />
+      </radialGradient>
+
+      <linearGradient id="hillFar" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="var(--scene-hill-far)" />
+        <stop offset="100%" stop-color="var(--scene-hill-mid)" />
+      </linearGradient>
+
+      <linearGradient id="hillNear" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="var(--scene-hill-near)" />
+        <stop offset="100%" stop-color="var(--scene-ground)" />
+      </linearGradient>
+
+      <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="18" />
+      </filter>
+      <filter id="softer" x="-30%" y="-30%" width="160%" height="160%">
+        <feGaussianBlur stdDeviation="38" />
+      </filter>
+    </defs>
+
+    <!-- Sky -->
+    <rect width="1600" height="900" fill="url(#sky)" />
+    <rect width="1600" height="900" fill="url(#sunGlow)" />
+
+    <!-- Cloud band: soft blurred forms, deliberately low contrast so text
+         placed over the scene never has to fight them. -->
+    <g class="scene__clouds" filter="url(#soft)" opacity="0.55">
+      <ellipse cx="300" cy="170" rx="210" ry="46" fill="var(--scene-sky-low)" />
+      <ellipse cx="430" cy="148" rx="150" ry="36" fill="var(--scene-sky-low)" />
+      <ellipse cx="1080" cy="130" rx="250" ry="52" fill="var(--scene-sky-low)" />
+      <ellipse cx="1260" cy="160" rx="170" ry="38" fill="var(--scene-sky-low)" />
+      <ellipse cx="760" cy="96" rx="190" ry="30" fill="var(--scene-sky-low)" />
+    </g>
+
+    <!-- Far ridge -->
+    <path
+      class="scene__layer scene__layer--far"
+      d="M0 452 L118 402 L206 434 L308 366 L392 408 L474 356 L566 404 L664 344 L742 392 L838 352 L936 406 L1032 362 L1130 410 L1226 372 L1324 414 L1428 380 L1520 420 L1600 392 L1600 900 L0 900 Z"
+      fill="url(#hillFar)"
+      opacity="0.62"
+    />
+
+    <!-- Mid hills -->
+    <path
+      class="scene__layer scene__layer--mid"
+      d="M0 560 C 180 500, 300 592, 470 548 C 640 504, 760 590, 930 556 C 1100 522, 1240 596, 1400 552 C 1490 527, 1550 556, 1600 540 L1600 900 L0 900 Z"
+      fill="var(--scene-hill-mid)"
+      opacity="0.85"
+    />
+
+    <!-- Tree line: irregular on purpose. A repeating shape reads as wallpaper. -->
+    <g class="scene__layer scene__layer--trees" fill="var(--scene-hill-near)" opacity="0.72">
+      <path d="M60 566 l15 -46 l15 46 z" />
+      <path d="M128 572 l12 -36 l12 36 z" />
+      <path d="M212 560 l18 -54 l18 54 z" />
+      <path d="M296 574 l13 -40 l13 40 z" />
+      <path d="M352 566 l16 -50 l16 50 z" />
+      <path d="M470 556 l14 -44 l14 44 z" />
+      <path d="M536 566 l11 -34 l11 34 z" />
+      <path d="M624 560 l17 -52 l17 52 z" />
+      <path d="M712 570 l12 -38 l12 38 z" />
+      <path d="M806 558 l15 -48 l15 48 z" />
+      <path d="M900 566 l13 -40 l13 40 z" />
+      <path d="M1004 556 l18 -56 l18 56 z" />
+      <path d="M1092 568 l12 -36 l12 36 z" />
+      <path d="M1188 558 l16 -50 l16 50 z" />
+      <path d="M1284 570 l13 -42 l13 42 z" />
+      <path d="M1378 556 l15 -48 l15 48 z" />
+      <path d="M1470 566 l12 -38 l12 38 z" />
+      <path d="M1544 558 l16 -50 l16 50 z" />
+    </g>
+
+    <!-- Near meadow -->
+    <path
+      class="scene__layer scene__layer--near"
+      d="M0 686 C 220 640, 420 716, 640 680 C 860 644, 1060 720, 1280 684 C 1420 661, 1520 690, 1600 672 L1600 900 L0 900 Z"
+      fill="url(#hillNear)"
+    />
+
+    <!-- Depth haze where the meadow meets the hills: atmosphere, and it keeps
+         the seam from reading as a hard cut. -->
+    <ellipse
+      cx="800" cy="676" rx="900" ry="54"
+      fill="var(--scene-sky-low)" opacity="0.28" filter="url(#softer)"
+    />
+  </svg>
+
+  {/* Set inline rather than in the stylesheet so the bundler does not try to
+      resolve an image that only exists once someone supplies one. */}
+  {photo && <div class="scene__photo" style="background-image:url('/images/scene.jpg')"></div>}
+
+  <!-- Legibility scrim. Content sits on top of this, the scene below it. -->
+  <div class="scene__scrim"></div>
+</div>
+
+<style>
+  .scene {
+    position: fixed;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+    background-color: var(--bg);
+  }
+
+  .scene__svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    /* Slightly oversized so the parallax drift never exposes an edge. */
+    transform: scale(1.06);
+    transform-origin: center bottom;
+  }
+
+  .scene__photo {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.9;
+  }
+
+  /* Two jobs. The veil lifts (or drops) the whole scene so that on-scene text
+     has something consistent to sit against, whichever theme is active; the
+     second gradient settles the scene into the page background further down,
+     where the glass panels live. */
+  .scene__scrim {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(to bottom, var(--scene-veil) 0%, transparent 58%),
+      linear-gradient(to top, var(--bg) 0%, transparent 46%);
+  }
+
+  /* Parallax: each layer drifts at its own rate, driven by a scroll-linked
+     custom property set in scripts/parallax.ts. */
+  .scene__layer {
+    transform: translate3d(0, calc(var(--scroll, 0) * var(--depth, 0) * 1px), 0);
+    will-change: transform;
+  }
+  .scene__layer--far   { --depth: 14; }
+  .scene__layer--mid   { --depth: 26; }
+  .scene__layer--trees { --depth: 30; }
+  .scene__layer--near  { --depth: 44; }
+  .scene__clouds {
+    transform: translate3d(calc(var(--scroll, 0) * 18px), 0, 0);
+    will-change: transform;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scene__layer,
+    .scene__clouds {
+      transform: none;
+    }
+  }
+</style>

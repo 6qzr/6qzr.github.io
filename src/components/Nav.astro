@@ -1,0 +1,240 @@
+---
+import { nav, person } from "../data/site";
+import ThemeToggle from "./ThemeToggle.astro";
+---
+
+<header class="nav-shell">
+  <nav class="nav glass" aria-label="Primary">
+    <a class="nav__brand" href="#top">
+      <span class="nav__mark" aria-hidden="true">
+        <!-- A leaf, drawn once, reused as the mark. -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 4c0 8.3-4.6 13.2-11.4 13.2H5.6C5.6 9.6 10.7 4.6 20 4z" />
+          <path d="M4 20c1.8-4.2 4.6-7.2 8.6-9.4" />
+        </svg>
+      </span>
+      <span class="nav__name">{person.name}</span>
+    </a>
+
+    <ul class="nav__links">
+      {nav.map((item) => (
+        <li><a href={item.href}>{item.label}</a></li>
+      ))}
+    </ul>
+
+    <div class="nav__actions">
+      <ThemeToggle />
+      <button
+        type="button"
+        class="nav__burger press"
+        aria-expanded="false"
+        aria-controls="nav-sheet"
+        aria-label="Open menu"
+        data-nav-toggle
+      >
+        <span aria-hidden="true"></span>
+        <span aria-hidden="true"></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Opens from the button it belongs to, and closes back into it. -->
+  <div class="nav-sheet glass-deep" id="nav-sheet" data-nav-sheet hidden>
+    <ul>
+      {nav.map((item) => (
+        <li><a href={item.href} data-nav-link>{item.label}</a></li>
+      ))}
+    </ul>
+  </div>
+</header>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>("[data-nav-toggle]");
+  const sheet = document.querySelector<HTMLElement>("[data-nav-sheet]");
+
+  if (toggle && sheet) {
+    const setOpen = (open: boolean): void => {
+      toggle.setAttribute("aria-expanded", String(open));
+      toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+      if (open) {
+        sheet.hidden = false;
+        // Next frame, so the transition has a start value to animate from.
+        requestAnimationFrame(() => sheet.classList.add("is-open"));
+      } else {
+        sheet.classList.remove("is-open");
+        const done = (): void => {
+          sheet.hidden = true;
+          sheet.removeEventListener("transitionend", done);
+        };
+        sheet.addEventListener("transitionend", done);
+      }
+    };
+
+    toggle.addEventListener("click", () => {
+      setOpen(toggle.getAttribute("aria-expanded") !== "true");
+    });
+
+    for (const link of sheet.querySelectorAll("[data-nav-link]")) {
+      link.addEventListener("click", () => setOpen(false));
+    }
+
+    // Never trap the visitor in an open menu.
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && toggle.getAttribute("aria-expanded") === "true") {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+
+    document.addEventListener("click", (event) => {
+      if (toggle.getAttribute("aria-expanded") !== "true") return;
+      const target = event.target as Node;
+      if (!sheet.contains(target) && !toggle.contains(target)) setOpen(false);
+    });
+  }
+</script>
+
+<style>
+  .nav-shell {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.85rem 1rem 0;
+    pointer-events: none;
+  }
+
+  /* Floating translucent chrome with the page scrolling underneath, rather
+     than an opaque bar that permanently eats a strip of the viewport. */
+  .nav {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: min(100%, 60rem);
+    padding: 0.4rem 0.45rem 0.4rem 0.9rem;
+    border-radius: 999px;
+  }
+
+  .nav__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 0.9375rem;
+    letter-spacing: -0.005em;
+    white-space: nowrap;
+  }
+  .nav__mark {
+    display: grid;
+    place-items: center;
+    width: 1.35rem;
+    height: 1.35rem;
+    color: var(--accent);
+  }
+  .nav__mark svg { width: 100%; height: 100%; }
+
+  .nav__links {
+    display: none;
+    align-items: center;
+    gap: 0.15rem;
+    margin: 0 auto;
+    padding: 0;
+    list-style: none;
+  }
+  .nav__links a {
+    display: block;
+    padding: 0.4rem 0.7rem;
+    border-radius: 999px;
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: color 140ms ease, background-color 140ms ease;
+  }
+  .nav__links a:hover {
+    color: var(--ink);
+    background: color-mix(in srgb, var(--ink) 8%, transparent);
+  }
+
+  .nav__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+    margin-left: auto;
+  }
+
+  .nav__burger {
+    display: grid;
+    align-content: center;
+    gap: 4px;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0 0.55rem;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    cursor: pointer;
+  }
+  .nav__burger span {
+    display: block;
+    height: 1.5px;
+    background: var(--ink);
+    border-radius: 2px;
+    transition: transform 240ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  .nav__burger[aria-expanded="true"] span:first-child {
+    transform: translateY(2.75px) rotate(45deg);
+  }
+  .nav__burger[aria-expanded="true"] span:last-child {
+    transform: translateY(-2.75px) rotate(-45deg);
+  }
+
+  .nav-sheet {
+    pointer-events: auto;
+    width: min(100%, 60rem);
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 1.25rem;
+    /* Anchored to the button that opened it. */
+    transform-origin: top right;
+    opacity: 0;
+    transform: scale(0.94) translateY(-6px);
+    transition:
+      opacity 200ms cubic-bezier(0.22, 0.61, 0.36, 1),
+      transform 280ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  .nav-sheet.is-open {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  .nav-sheet ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .nav-sheet a {
+    display: block;
+    padding: 0.7rem 0.85rem;
+    border-radius: 0.85rem;
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  .nav-sheet a:hover {
+    background: color-mix(in srgb, var(--ink) 8%, transparent);
+  }
+
+  @media (min-width: 48rem) {
+    .nav__links { display: flex; }
+    .nav__burger { display: none; }
+    .nav-sheet { display: none; }
+  }
+</style>

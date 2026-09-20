@@ -1,0 +1,63 @@
+---
+import Base from "../layouts/Base.astro";
+---
+
+<Base title="Not found — Mohammed Al Abri" description="That page does not exist.">
+  <section class="lost">
+    <div class="lost__panel glass-deep">
+      <p class="t-eyebrow lost__eyebrow">404</p>
+      <h1 class="t-h2 on-glass lost__title">This path leads nowhere.</h1>
+      <p class="t-body on-glass-soft lost__note">
+        The page you are looking for does not exist — or it did once and does
+        not any more.
+      </p>
+      <a class="lost__link press" href="/">
+        Back to the start
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M5 12h13M12 5l7 7-7 7" />
+        </svg>
+      </a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .lost {
+    display: grid;
+    place-items: center;
+    min-height: 100svh;
+    padding: 7rem 1rem 5rem;
+  }
+  .lost__panel {
+    width: min(100%, 34rem);
+    padding: clamp(1.6rem, 4vw, 2.618rem);
+    border-radius: 1.75rem;
+    text-align: center;
+  }
+  .lost__eyebrow {
+    margin: 0 0 0.75rem;
+    color: var(--accent);
+  }
+  .lost__title {
+    margin: 0 0 var(--spacing-phi-2);
+  }
+  .lost__note {
+    margin: 0 0 var(--spacing-phi-3);
+  }
+  .lost__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.7rem 1.25rem;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--accent-ink);
+    font-size: 0.9375rem;
+    font-weight: 550;
+    text-decoration: none;
+  }
+  .lost__link svg {
+    width: 1rem;
+    height: 1rem;
+  }
+</style>

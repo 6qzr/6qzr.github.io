@@ -1,0 +1,203 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  project: CollectionEntry<"projects">;
+  index: number;
+}
+
+const { project, index } = Astro.props;
+const { data } = project;
+
+const trackLabel = data.track === "security" ? "Security" : "Full stack";
+---
+
+<article
+  class:list={["card glass-deep", `card--${data.track}`]}
+  data-reveal
+  data-reveal-delay={index * 120}
+>
+  <div class="card__head">
+    <p class="t-eyebrow card__track">{trackLabel}</p>
+    <p class="t-small card__period">{data.period}</p>
+  </div>
+
+  <h3 class="t-h2 on-glass card__title">
+    <a href={`/projects/${project.id}/`}>{data.title}</a>
+  </h3>
+
+  <p class="t-body card__tagline on-glass">{data.tagline}</p>
+
+  <p class="t-small card__role on-glass-soft">{data.role}</p>
+
+  <ul class="card__highlights">
+    {data.highlights.map((highlight) => (
+      <li class="t-small on-glass-soft">
+        <span class="card__bullet" aria-hidden="true"></span>
+        {highlight}
+      </li>
+    ))}
+  </ul>
+
+  <ul class="card__stack">
+    {data.stack.map((tech) => <li class="glass">{tech}</li>)}
+  </ul>
+
+  <div class="card__foot">
+    <a class="card__link press" href={`/projects/${project.id}/`}>
+      Read the detail
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M5 12h13M12 5l7 7-7 7" />
+      </svg>
+    </a>
+
+    {data.repo ? (
+      <a class="card__link card__link--muted press" href={data.repo} target="_blank" rel="noopener noreferrer">
+        View on GitHub
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M8 5h11v11M19 5 6 18" />
+        </svg>
+      </a>
+    ) : (
+      /* Explain the absence rather than leaving a dead space where a repo
+         link would obviously go. */
+      <p class="t-small card__note">{data.repoNote}</p>
+    )}
+  </div>
+</article>
+
+<style>
+  .card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-phi-1);
+    padding: clamp(1.4rem, 3.5vw, 2.618rem);
+    border-radius: clamp(1.25rem, 2.5vw, 2rem);
+  }
+
+  .card__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .card__track {
+    margin: 0;
+    color: var(--accent);
+  }
+  .card--security .card__track {
+    color: var(--sun-500);
+  }
+  :global(.dark) .card--security .card__track {
+    color: var(--sun-400);
+  }
+  .card__period {
+    margin: 0;
+    color: var(--ink-faint);
+  }
+
+  .card__title {
+    margin: 0;
+  }
+  .card__title a {
+    color: inherit;
+    text-decoration: none;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 280ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  .card__title a:hover {
+    background-size: 100% 1px;
+  }
+
+  .card__tagline {
+    margin: 0;
+    font-weight: 500;
+  }
+  .card__role {
+    margin: 0;
+    color: var(--ink-faint);
+  }
+
+  .card__highlights {
+    display: grid;
+    gap: 0.55rem;
+    margin: var(--spacing-phi-2) 0 0;
+    padding: var(--spacing-phi-2) 0 0;
+    list-style: none;
+    border-top: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  }
+  .card__highlights li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.6rem;
+    align-items: start;
+  }
+  .card__bullet {
+    width: 0.3rem;
+    height: 0.3rem;
+    margin-top: 0.55em;
+    border-radius: 999px;
+    background: var(--accent);
+  }
+  .card--security .card__bullet {
+    background: var(--sun-500);
+  }
+  :global(.dark) .card--security .card__bullet {
+    background: var(--sun-400);
+  }
+
+  .card__stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: var(--spacing-phi-2) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .card__stack li {
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: var(--ink-soft);
+  }
+
+  .card__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1.25rem;
+    margin-top: auto;
+    padding-top: var(--spacing-phi-2);
+  }
+
+  .card__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.875rem;
+    font-weight: 550;
+    color: var(--accent);
+    text-decoration: none;
+  }
+  .card__link svg {
+    width: 0.9rem;
+    height: 0.9rem;
+    transition: transform 200ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  .card__link:hover svg {
+    transform: translateX(2px);
+  }
+  .card__link--muted {
+    color: var(--ink-soft);
+  }
+
+  .card__note {
+    margin: 0;
+    color: var(--ink-faint);
+  }
+</style>

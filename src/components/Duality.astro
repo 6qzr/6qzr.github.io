@@ -1,0 +1,127 @@
+---
+import { duality } from "../data/site";
+---
+
+<section class="section" id="craft">
+  <div class="shell">
+    <header class="head" data-reveal>
+      <p class="t-eyebrow head__eyebrow on-scene">{duality.eyebrow}</p>
+      <h2 class="t-h2 on-scene head__title">{duality.title}</h2>
+    </header>
+
+    <div class="split">
+      {duality.sides.map((side, index) => (
+        <article
+          class:list={["side glass-deep", `side--${side.key}`]}
+          data-reveal
+          data-reveal-delay={index * 110}
+        >
+          <p class="t-eyebrow side__label">{side.label}</p>
+          <h3 class="t-h3 on-glass side__lede">{side.lede}</h3>
+          <p class="t-body on-glass-soft side__body">{side.body}</p>
+
+          <ul class="side__points">
+            {side.points.map((point) => (
+              <li class="t-small on-glass-soft">
+                <span class="side__bullet" aria-hidden="true"></span>
+                {point}
+              </li>
+            ))}
+          </ul>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .section {
+    position: relative;
+    padding: var(--spacing-phi-6) 1rem;
+  }
+
+  .shell {
+    width: min(100%, 68rem);
+    margin-inline: auto;
+  }
+
+  .head {
+    max-width: 44ch;
+    margin: 0 auto var(--spacing-phi-4);
+    text-align: center;
+  }
+  .head__eyebrow {
+    margin: 0 0 0.75rem;
+  }
+  .head__title {
+    margin: 0;
+  }
+
+  .split {
+    display: grid;
+    gap: var(--spacing-phi-2);
+  }
+
+  .side {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-phi-1);
+    padding: clamp(1.4rem, 3vw, 2.25rem);
+    border-radius: clamp(1.25rem, 2.5vw, 1.75rem);
+  }
+
+  .side__label {
+    margin: 0;
+    color: var(--accent);
+  }
+  .side--break .side__label {
+    /* The security half is marked by the warm low-sun accent, so the two
+       tracks are distinguishable without relying on position alone. */
+    color: var(--sun-500);
+  }
+  :global(.dark) .side--break .side__label {
+    color: var(--sun-400);
+  }
+
+  .side__lede {
+    margin: 0;
+  }
+  .side__body {
+    margin: 0;
+  }
+
+  .side__points {
+    display: grid;
+    gap: 0.55rem;
+    margin: auto 0 0;
+    padding: var(--spacing-phi-2) 0 0;
+    list-style: none;
+    border-top: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  }
+  .side__points li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.6rem;
+    align-items: start;
+  }
+  .side__bullet {
+    width: 0.3rem;
+    height: 0.3rem;
+    margin-top: 0.55em;
+    border-radius: 999px;
+    background: var(--accent);
+  }
+  .side--break .side__bullet {
+    background: var(--sun-500);
+  }
+  :global(.dark) .side--break .side__bullet {
+    background: var(--sun-400);
+  }
+
+  @media (min-width: 52rem) {
+    .split {
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-phi-3);
+    }
+  }
+</style>

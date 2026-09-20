@@ -1,0 +1,197 @@
+/**
+ * Single source of truth for everything the site says about Mohammed.
+ *
+ * Content lives here rather than inside components so that updating the site
+ * after a new job, certificate or project is a one-file edit.
+ *
+ * Sourced from the CV (Feb 2026). Paragraphs marked `NEEDS HIS VOICE` are
+ * drafts written from the CV — they are accurate, but they should be replaced
+ * with Mohammed's own words, because the point of this page is that a person
+ * shows up before a skill list does.
+ */
+
+export const person = {
+  name: "Mohammed Al Abri",
+  fullName: "Mohammed Abdul Hamid Mohammed Al Abri",
+  location: "Muscat, Oman",
+  email: "imohammedalabri@gmail.com",
+  github: "https://github.com/6qzr",
+  githubHandle: "6qzr",
+  linkedin: "https://linkedin.com/in/mohammed-al-abri-434263353",
+  cv: "/cv/Mohammed-Al-Abri-CV.pdf",
+
+  /** The line that lands before any job title does. */
+  headline: "I build things carefully,\nthen try to break them.",
+
+  /** One sentence for search results, link previews and the meta description. */
+  summary:
+    "Computer Science graduate specialising in cybersecurity, building backends in .NET and thinking hard about how they fail. Based in Muscat, Oman.",
+
+  roles: ["Full-stack developer", "Cybersecurity"],
+} as const;
+
+/** NEEDS HIS VOICE — accurate from the CV, but written by someone else. */
+export const about = {
+  eyebrow: "Who I am",
+  title: "Curious first,\nengineer second.",
+  paragraphs: [
+    "I am a Computer Science graduate from Sultan Qaboos University, where I specialised in cybersecurity and computing infrastructure. What actually drives me is simpler than that: I want to understand how a thing works all the way down, and I am not satisfied until I do.",
+    "That curiosity pulls in two directions at once. One half of me wants to build — to design the data model, get the architecture right, and ship something people rely on. The other half immediately wants to know where it breaks, who could abuse it, and what happens on the worst day.",
+    "I have found those two instincts are the same instinct. The people who build most carefully are usually the ones who have spent time breaking things.",
+  ],
+  /** Small, human facts. These especially should become his own. */
+  facts: [
+    { label: "Based in", value: "Muscat, Oman" },
+    { label: "Studied at", value: "Sultan Qaboos University" },
+    { label: "Currently", value: "Backend .NET developer & team lead" },
+    { label: "Happiest when", value: "A hard problem finally gives way" },
+  ],
+} as const;
+
+/**
+ * The conceptual hook: the two tracks presented as one temperament, so the
+ * combination reads as deliberate rather than as two unrelated skill lists.
+ */
+export const duality = {
+  eyebrow: "How the two halves fit",
+  title: "Build it. Then break it.",
+  sides: [
+    {
+      key: "build",
+      label: "Building",
+      lede: "Backend systems that hold up under their own weight.",
+      body: "Layered ASP.NET Core APIs, relational models designed before a line of code is written, and delivery managed properly — branches, sprints, tracked issues, review. I care about the parts nobody sees: separation of concerns, honest data contracts, migrations that do not ruin someone's afternoon.",
+      points: [
+        "ASP.NET Core Web API, three-layer architecture",
+        "Entity Framework Core and SQL Server",
+        "Relational design from ERD to production schema",
+        "Git-based sprint workflow, as team lead",
+      ],
+    },
+    {
+      key: "break",
+      label: "Breaking",
+      lede: "The same systems, viewed by someone looking for a way in.",
+      body: "A rotation across SOC, application security, GRC and network security at Ooredoo taught me what enterprise defence actually looks like day to day. My graduation project went the other way — building the tooling that finds vulnerabilities, rather than waiting to be told about them.",
+      points: [
+        "SIEM monitoring and incident response",
+        "Nmap, Wireshark, MITRE ATT&CK",
+        "Access control, cryptography, secure SDLC",
+        "ISC2 Certified in Cybersecurity (CC)",
+      ],
+    },
+  ],
+} as const;
+
+/** The cards that ride the golden spiral. Short labels only — they move. */
+export const stack = [
+  { name: "C#", group: "language" },
+  { name: "ASP.NET Core", group: "backend" },
+  { name: "EF Core", group: "backend" },
+  { name: "SQL Server", group: "data" },
+  { name: "Java", group: "language" },
+  { name: "Python", group: "language" },
+  { name: "SQL", group: "data" },
+  { name: "Spring Boot", group: "backend" },
+  { name: "REST APIs", group: "backend" },
+  { name: "JWT Auth", group: "security" },
+  { name: "SIEM", group: "security" },
+  { name: "Nmap", group: "security" },
+  { name: "Wireshark", group: "security" },
+  { name: "MITRE ATT&CK", group: "security" },
+  { name: "Cryptography", group: "security" },
+  { name: "Secure SDLC", group: "security" },
+  { name: "Git", group: "devops" },
+  { name: "GitHub Actions", group: "devops" },
+] as const;
+
+export type StackGroup = (typeof stack)[number]["group"];
+
+export const stackGroupLabels: Record<StackGroup, string> = {
+  language: "Languages",
+  backend: "Backend",
+  data: "Data",
+  security: "Security",
+  devops: "Delivery",
+};
+
+export const timeline = [
+  {
+    kind: "work",
+    role: "Backend .NET Developer & Team Lead",
+    org: "Codeline / Rihal Bootcamp",
+    place: "Muscat",
+    start: "Apr 2026",
+    end: "Present",
+    points: [
+      "Led a 4-person team on a citizen issue-reporting Web API, owning architecture decisions, branching strategy and the integrity of a shared codebase.",
+      "Designed and validated a 10-entity relational model, resolving 1:M and M:N cardinality before implementation began.",
+      "Built the API on a three-layer architecture — repository, service, controller — with EF Core, SQL Server, soft deletes and role-based access scoping.",
+      "Secured endpoints with JWT authentication and DTO-based request and response contracts.",
+    ],
+  },
+  {
+    kind: "work",
+    role: "Full Stack Development Intern",
+    org: "Rihal & Codeline",
+    place: "Muscat",
+    start: "Jul 2025",
+    end: "Sep 2025",
+    points: [
+      "Built full-stack features in Git-based Agile sprints, applying networking and API integration concepts on a real project.",
+      "Developed the collaborative practices that carried directly into the later .NET bootcamp capstone.",
+    ],
+  },
+  {
+    kind: "work",
+    role: "Information Security Management",
+    org: "Ooredoo",
+    place: "Muscat",
+    start: "Jun 2024",
+    end: "Aug 2024",
+    points: [
+      "Rotated across SOC, application security, GRC and network security teams.",
+      "Supported SIEM-based monitoring and incident response, and contributed to DLP compliance audits.",
+      "Worked hands-on with firewalls, privileged access management, VPNs and secure SDLC practices.",
+    ],
+  },
+  {
+    kind: "education",
+    role: "BSc Computer Science",
+    org: "Sultan Qaboos University",
+    place: "Oman",
+    start: "Sep 2020",
+    end: "Feb 2026",
+    points: [
+      "Specialised in cybersecurity and computing infrastructure. GPA 3.56.",
+      "Dean's List 2021–2024, for honours and distinction across multiple terms.",
+    ],
+  },
+] as const;
+
+export const certificates = [
+  { name: "Certified in Cybersecurity (CC)", issuer: "ISC2", url: null },
+  {
+    name: "Metasploit for Beginners",
+    issuer: "Coursera",
+    url: "https://coursera.org/share/91f2565f30427ee929ba1b5d53eed6b9",
+  },
+  {
+    name: "Wireshark for Packet Capture",
+    issuer: "Coursera",
+    url: "https://coursera.org/share/d7e51c43d9a7dbc165e52f1292c92c7b",
+  },
+  {
+    name: "Introduction to AI Tools and Productivity",
+    issuer: "Ministry of Labour",
+    url: null,
+  },
+] as const;
+
+export const nav = [
+  { label: "About", href: "#about" },
+  { label: "Craft", href: "#craft" },
+  { label: "Work", href: "#work" },
+  { label: "Path", href: "#path" },
+  { label: "Contact", href: "#contact" },
+] as const;

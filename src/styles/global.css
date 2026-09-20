@@ -1,0 +1,358 @@
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+@import "@fontsource/instrument-serif";
+
+/* Class-based dark mode: the <html> element carries `.dark`. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------------------------------------------------------------------------
+   Palette — "nature feel: sky blue, tree green".
+   Light = midday meadow. Dark = dusk over the same meadow, not an inversion.
+   Both themes are designed; neither is a filter applied to the other.
+--------------------------------------------------------------------------- */
+:root {
+  /* Sky */
+  --sky-50:  #f2f8fd;
+  --sky-100: #dcecf9;
+  --sky-200: #bcdcf3;
+  --sky-300: #8ec4e9;
+  --sky-400: #59a5da;
+  --sky-500: #3587c6;
+  --sky-600: #256ca8;
+  --sky-700: #1f5688;
+  --sky-800: #1d4870;
+  --sky-900: #123049;
+  --sky-950: #0b1f31;
+
+  /* Tree */
+  --tree-50:  #f3f9f0;
+  --tree-100: #e3f2dc;
+  --tree-200: #c7e5bb;
+  --tree-300: #9dd08c;
+  --tree-400: #6eb457;
+  --tree-500: #4d9738;
+  --tree-600: #3a7829;
+  --tree-700: #2f5f23;
+  --tree-800: #284c1f;
+  --tree-900: #1c3517;
+  --tree-950: #0d1d0c;
+
+  /* Warm accent — low afternoon sun, used sparingly for emphasis. */
+  --sun-300: #ffd9a0;
+  --sun-400: #f7bd6b;
+  --sun-500: #e79b3c;
+
+  /* Golden ratio, used for real in the spacing scale and the spiral. */
+  --phi: 1.618;
+}
+
+/* --- Light: midday ------------------------------------------------------ */
+:root {
+  color-scheme: light;
+
+  --bg:            var(--sky-50);
+  --bg-deep:       #ffffff;
+  --ink:           #0f2233;
+  --ink-soft:      #3d5468;
+  --ink-faint:     #6b8296;
+
+  /* Text over the landscape. At midday the scene is pale, so ink must be dark
+     and the halo light — white text over a bright meadow is unreadable. */
+  --ink-on-scene:  #0b2133;
+  --scene-veil:    rgb(255 255 255 / 0.40);
+  --on-scene-shadow:
+    0 1px 2px rgb(255 255 255 / 0.8),
+    0 2px 16px rgb(255 255 255 / 0.55);
+
+  --accent:        var(--tree-600);
+  --accent-soft:   var(--tree-500);
+  --accent-ink:    #ffffff;
+
+  /* Liquid glass */
+  --glass-bg:      rgb(255 255 255 / 0.55);
+  --glass-bg-deep: rgb(255 255 255 / 0.72);
+  --glass-edge:    rgb(255 255 255 / 0.85);
+  --glass-blur:    20px;
+  --glass-shadow:  0 1px 2px rgb(15 34 51 / 0.05), 0 12px 32px -8px rgb(15 34 51 / 0.14);
+
+  /* Scene */
+  --scene-sky-top:    #8cc3e8;
+  --scene-sky-mid:    #c3e0f2;
+  --scene-sky-low:    #eaf4f7;
+  --scene-sun:        rgb(255 245 214 / 0.95);
+  --scene-hill-far:   #a9cbb4;
+  --scene-hill-mid:   #7bae7e;
+  --scene-hill-near:  #4f8a51;
+  --scene-ground:     #3c6f3f;
+  --leaf-tint:        #4d9738;
+}
+
+/* --- Dark: dusk --------------------------------------------------------- */
+.dark {
+  color-scheme: dark;
+
+  --bg:            #081722;
+  --bg-deep:       #050f17;
+  --ink:           #e8f1f6;
+  --ink-soft:      #a7becd;
+  --ink-faint:     #6d8799;
+
+  /* At dusk the relationship inverts: light ink, dark halo. */
+  --ink-on-scene:  #f2f8fd;
+  --scene-veil:    rgb(4 18 28 / 0.34);
+  --on-scene-shadow:
+    0 1px 2px rgb(4 18 28 / 0.45),
+    0 2px 18px rgb(4 18 28 / 0.35);
+
+  --accent:        var(--tree-300);
+  --accent-soft:   var(--tree-400);
+  --accent-ink:    #0d1d0c;
+
+  --glass-bg:      rgb(12 32 46 / 0.48);
+  --glass-bg-deep: rgb(9 26 38 / 0.68);
+  --glass-edge:    rgb(190 226 246 / 0.22);
+  --glass-blur:    22px;
+  --glass-shadow:  0 1px 2px rgb(0 0 0 / 0.35), 0 16px 40px -10px rgb(0 0 0 / 0.55);
+
+  --scene-sky-top:    #071a2b;
+  --scene-sky-mid:    #0e3450;
+  --scene-sky-low:    #1b5068;
+  --scene-sun:        rgb(214 236 255 / 0.30);
+  --scene-hill-far:   #16394a;
+  --scene-hill-mid:   #12303c;
+  --scene-hill-near:  #0d242c;
+  --scene-ground:     #09191e;
+  --leaf-tint:        #7fbf79;
+}
+
+/* Expose the palette to Tailwind utilities (bg-accent, text-ink, …). */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-deep: var(--bg-deep);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
+
+  --font-sans: "Inter Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Instrument Serif", ui-serif, Georgia, serif;
+
+  /* Spacing steps derived from the golden ratio, so the rhythm is actually
+     golden rather than merely described that way. */
+  --spacing-phi-1: 0.618rem;
+  --spacing-phi-2: 1rem;
+  --spacing-phi-3: 1.618rem;
+  --spacing-phi-4: 2.618rem;
+  --spacing-phi-5: 4.236rem;
+  --spacing-phi-6: 6.854rem;
+}
+
+/* ---------------------------------------------------------------------------
+   Base
+--------------------------------------------------------------------------- */
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+/* Visible, consistent focus. Never removed. */
+:where(a, button, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* ---------------------------------------------------------------------------
+   Typography — tracking and leading are size-specific, never one value.
+--------------------------------------------------------------------------- */
+.t-display {
+  font-family: var(--font-display);
+  font-size: clamp(2.75rem, 7.5vw, 6.25rem);
+  line-height: 0.98;
+  letter-spacing: -0.025em;
+  font-weight: 400;
+}
+.t-h2 {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4.2vw, 3.25rem);
+  line-height: 1.08;
+  letter-spacing: -0.018em;
+  font-weight: 400;
+}
+.t-h3 {
+  font-size: clamp(1.15rem, 1.9vw, 1.5rem);
+  line-height: 1.25;
+  letter-spacing: -0.011em;
+  font-weight: 600;
+}
+.t-body {
+  font-size: clamp(1rem, 1.1vw, 1.0625rem);
+  line-height: 1.65;
+  letter-spacing: 0;
+}
+.t-small {
+  font-size: 0.875rem;
+  line-height: 1.55;
+  letter-spacing: 0.004em;
+}
+/* Small caps labels need positive tracking to stay legible. */
+.t-eyebrow {
+  font-size: 0.6875rem;
+  line-height: 1.2;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------------------------------
+   Liquid glass
+   Material weight encodes hierarchy: `.glass` for floating chrome and small
+   surfaces, `.glass-deep` for surfaces carrying dense text. Bigger surfaces
+   read as thicker. Never nest one inside the other.
+--------------------------------------------------------------------------- */
+.glass,
+.glass-deep {
+  position: relative;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(175%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(175%);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-shadow);
+}
+.glass-deep {
+  background: var(--glass-bg-deep);
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur) * var(--phi))) saturate(185%);
+  backdrop-filter: blur(calc(var(--glass-blur) * var(--phi))) saturate(185%);
+}
+
+/* The bright top edge is light catching the lip of the material. Without it,
+   glass reads as flat translucency rather than a physical surface. */
+.glass::before,
+.glass-deep::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding-top: 1px;
+  background: linear-gradient(
+    to bottom,
+    rgb(255 255 255 / 0.65),
+    rgb(255 255 255 / 0) 42%
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+.dark .glass::before,
+.dark .glass-deep::before {
+  background: linear-gradient(
+    to bottom,
+    rgb(215 240 255 / 0.30),
+    rgb(215 240 255 / 0) 42%
+  );
+}
+
+/* Vibrancy: text over glass needs more contrast and slightly more weight than
+   text on a solid background, because the backdrop keeps changing. */
+.on-glass      { color: var(--ink); font-weight: 450; letter-spacing: 0.002em; }
+.on-glass-soft { color: var(--ink-soft); }
+
+/* Text laid directly over the scene. */
+.on-scene {
+  color: var(--ink-on-scene);
+  text-shadow: var(--on-scene-shadow);
+}
+
+/* ---------------------------------------------------------------------------
+   Motion
+--------------------------------------------------------------------------- */
+@keyframes rise {
+  from { opacity: 0; transform: translate3d(0, 18px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+/* Sections materialize once, when scrolled into view (see scripts/reveal.ts). */
+[data-reveal] {
+  opacity: 0;
+  will-change: opacity, transform;
+}
+[data-reveal].is-revealed {
+  animation: rise 0.72s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+/* Instant feedback on press, not on release. */
+.press {
+  transition: transform 110ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.press:active {
+  transform: scale(0.972);
+}
+
+/* Accessibility signals, each handled independently of the others. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  [data-reveal] { opacity: 1; animation: none; }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass,
+  .glass-deep {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: var(--bg);
+  }
+}
+
+@media (prefers-contrast: more) {
+  .glass,
+  .glass-deep {
+    background: var(--bg);
+    border-color: var(--ink);
+  }
+  .on-scene { text-shadow: 0 1px 3px rgb(0 0 0 / 0.9); }
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 200;
+}
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  padding: 0.6rem 1rem;
+  background: var(--bg-deep);
+  color: var(--ink);
+  border-radius: 8px;
+  box-shadow: var(--glass-shadow);
+}

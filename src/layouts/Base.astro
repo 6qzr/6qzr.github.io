@@ -1,0 +1,138 @@
+---
+import "../styles/global.css";
+import { person } from "../data/site";
+import NatureScene from "../components/NatureScene.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = person.summary } = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site).toString();
+const ogImage = new URL("/og.png", Astro.site).toString();
+
+/** JSON-LD matters here: this is a credibility site, so what a search engine
+ *  and a link preview understand about him is part of the deliverable. */
+const personSchema = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: person.fullName,
+  alternateName: person.name,
+  url: Astro.site?.toString(),
+  email: `mailto:${person.email}`,
+  jobTitle: "Software Engineer",
+  description: person.summary,
+  address: { "@type": "PostalAddress", addressLocality: "Muscat", addressCountry: "OM" },
+  alumniOf: { "@type": "CollegeOrUniversity", name: "Sultan Qaboos University" },
+  knowsAbout: [
+    "ASP.NET Core",
+    "Entity Framework Core",
+    "SQL Server",
+    "Application security",
+    "Vulnerability research",
+    "Secure SDLC",
+  ],
+  sameAs: [person.github, person.linkedin],
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content={person.fullName} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={person.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    {/*
+      Theme must be resolved before first paint, otherwise the page renders in
+      the wrong theme for a frame and visibly flashes. This is the one script
+      that is deliberately render-blocking.
+    */}
+    <script is:inline>
+      (function () {
+        try {
+          var stored = localStorage.getItem("theme");
+          var dark =
+            stored === "dark" ||
+            (stored !== "light" &&
+              window.matchMedia("(prefers-color-scheme: dark)").matches);
+          if (dark) document.documentElement.classList.add("dark");
+        } catch (e) {
+          /* Storage blocked: fall through to the light theme. */
+        }
+      })();
+    </script>
+
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(personSchema)} />
+  </head>
+
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <NatureScene />
+
+    {/*
+      The leaf layer sits above the page, as in the brief. It is inert:
+      pointer-events are off and it carries no information, so nothing is lost
+      if the canvas never initialises.
+    */}
+    <canvas id="leaf-layer" aria-hidden="true"></canvas>
+
+    <Nav />
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <Footer />
+
+    <script>
+      import { initTheme } from "../scripts/theme";
+      import { initReveal } from "../scripts/reveal";
+      import { initParallax } from "../scripts/parallax";
+      import { initLeaves } from "../scripts/leaves";
+
+      initTheme();
+      initReveal();
+      initParallax();
+
+      const canvas = document.getElementById("leaf-layer");
+      if (canvas instanceof HTMLCanvasElement) initLeaves(canvas);
+    </script>
+
+    <style>
+      #leaf-layer {
+        position: fixed;
+        inset: 0;
+        z-index: 40;
+        pointer-events: none;
+      }
+
+      main {
+        position: relative;
+        z-index: 1;
+      }
+    </style>
+  </body>
+</html>

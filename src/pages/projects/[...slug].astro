@@ -1,0 +1,195 @@
+---
+import { getCollection, render } from "astro:content";
+import type { GetStaticPaths } from "astro";
+import Base from "../../layouts/Base.astro";
+import { person } from "../../data/site";
+
+export const getStaticPaths = (async () => {
+  const projects = await getCollection("projects");
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project },
+  }));
+}) satisfies GetStaticPaths;
+
+const { project } = Astro.props;
+const { Content } = await render(project);
+const { data } = project;
+
+const trackLabel = data.track === "security" ? "Security" : "Full stack";
+---
+
+<Base title={`${data.title} — ${person.name}`} description={data.tagline}>
+  <article class="project">
+    <div class="shell">
+      <a class="back press" href="/#work">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M19 12H6M13 5l-7 7 7 7" />
+        </svg>
+        All work
+      </a>
+
+      <header class="project__head">
+        <p class:list={["t-eyebrow", "project__track", { "project__track--security": data.track === "security" }]}>
+          {trackLabel} · {data.period}
+        </p>
+        <h1 class="t-display on-scene project__title">{data.title}</h1>
+        <p class="t-body on-scene project__tagline">{data.tagline}</p>
+      </header>
+
+      <div class="project__panel glass-deep">
+        <dl class="project__meta">
+          <div>
+            <dt class="t-eyebrow">Role</dt>
+            <dd class="on-glass">{data.role}</dd>
+          </div>
+          <div>
+            <dt class="t-eyebrow">Period</dt>
+            <dd class="on-glass">{data.period}</dd>
+          </div>
+          <div>
+            <dt class="t-eyebrow">Stack</dt>
+            <dd class="on-glass">{data.stack.join(" · ")}</dd>
+          </div>
+          <div>
+            <dt class="t-eyebrow">Source</dt>
+            <dd class="on-glass">
+              {data.repo ? (
+                <a href={data.repo} target="_blank" rel="noopener noreferrer">
+                  github.com/{data.repo.split("github.com/")[1]}
+                </a>
+              ) : (
+                data.repoNote
+              )}
+            </dd>
+          </div>
+        </dl>
+
+        <div class="prose">
+          <Content />
+        </div>
+
+        <section class="project__highlights">
+          <h2 class="t-eyebrow project__highlights-title">What it does</h2>
+          <ul>
+            {data.highlights.map((highlight) => (
+              <li class="t-body on-glass-soft">{highlight}</li>
+            ))}
+          </ul>
+        </section>
+      </div>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .project {
+    padding: 8rem 1rem var(--spacing-phi-5);
+  }
+
+  .shell {
+    width: min(100%, 52rem);
+    margin-inline: auto;
+  }
+
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: var(--spacing-phi-3);
+    font-size: 0.875rem;
+    font-weight: 550;
+    color: var(--ink);
+    text-decoration: none;
+    opacity: 0.85;
+  }
+  .back svg {
+    width: 0.95rem;
+    height: 0.95rem;
+    transition: transform 200ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  .back:hover svg {
+    transform: translateX(-2px);
+  }
+
+  .project__head {
+    margin-bottom: var(--spacing-phi-4);
+  }
+  .project__track {
+    margin: 0 0 0.75rem;
+    color: var(--accent);
+  }
+  .project__track--security {
+    color: var(--sun-500);
+  }
+  :global(.dark) .project__track--security {
+    color: var(--sun-400);
+  }
+  .project__title {
+    margin: 0 0 var(--spacing-phi-2);
+    font-size: clamp(2.25rem, 5.5vw, 4rem);
+  }
+  .project__tagline {
+    max-width: 44ch;
+    margin: 0;
+    font-weight: 450;
+  }
+
+  .project__panel {
+    padding: clamp(1.5rem, 4vw, 2.618rem);
+    border-radius: clamp(1.25rem, 2.5vw, 2rem);
+  }
+
+  .project__meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    gap: var(--spacing-phi-2);
+    margin: 0 0 var(--spacing-phi-3);
+    padding-bottom: var(--spacing-phi-3);
+    border-bottom: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  }
+  .project__meta dt {
+    margin: 0 0 0.3rem;
+    color: var(--ink-faint);
+  }
+  .project__meta dd {
+    margin: 0;
+    font-size: 0.9375rem;
+    font-weight: 500;
+  }
+  .project__meta a {
+    color: var(--accent);
+    text-underline-offset: 3px;
+    overflow-wrap: anywhere;
+  }
+
+  .prose :global(p) {
+    margin: 0 0 var(--spacing-phi-2);
+    max-width: 66ch;
+    font-size: clamp(1rem, 1.1vw, 1.0625rem);
+    line-height: 1.7;
+    color: var(--ink-soft);
+  }
+  .prose :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  .project__highlights {
+    margin-top: var(--spacing-phi-3);
+    padding-top: var(--spacing-phi-3);
+    border-top: 1px solid color-mix(in srgb, var(--ink) 12%, transparent);
+  }
+  .project__highlights-title {
+    margin: 0 0 var(--spacing-phi-2);
+    color: var(--accent);
+  }
+  .project__highlights ul {
+    display: grid;
+    gap: var(--spacing-phi-1);
+    margin: 0;
+    padding-left: 1.15rem;
+  }
+  .project__highlights li::marker {
+    color: color-mix(in srgb, var(--ink) 35%, transparent);
+  }
+</style>

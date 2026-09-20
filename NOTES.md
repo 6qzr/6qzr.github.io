@@ -111,9 +111,22 @@ const vh = document.documentElement.clientHeight;
 ```
 
 Getting there meant laying the dense sections out sideways rather than cutting
-anything: the spiral sits beside the stack list, and the timeline runs in two
-columns with the certificates on one line. `global.css` falls back to
-`proximity` below 44rem tall or 48rem wide, where sections stack and grow.
+anything, and splitting the path in two: the spiral sits beside the stack list,
+experience runs as three roles side by side, and education plus certificates
+get their own slide. `global.css` falls back to `proximity` below 44rem tall or
+48rem wide, where sections stack and grow.
+
+**How it glides** is `src/scripts/slides.ts`. CSS snap decides where the page
+lands but gives no control over how it gets there, and Chrome's native snap
+animation is short and lands hard. The controller reads a scroll intent and
+animates to the next section over 820ms with an ease that starts and ends at
+rest, switching native snap off for the duration so the two do not fight.
+
+It is deliberately narrow, because hijacking the wheel is user-hostile when
+overdone. It steps aside entirely under reduced motion, below the fallback
+breakpoints, and on touch devices where native momentum already feels right.
+It never locks the page: any pointer press, hash change or resize cancels the
+animation, and native snapping is the behaviour with no JavaScript at all.
 
 ## Performance and accessibility
 

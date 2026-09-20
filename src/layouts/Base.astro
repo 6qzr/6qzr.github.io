@@ -139,9 +139,11 @@ const personSchema = {
       import { initTheme } from "../scripts/theme";
       import { initReveal } from "../scripts/reveal";
       import { initLeaves } from "../scripts/leaves";
+      import { initSlides } from "../scripts/slides";
 
       initTheme();
       initReveal();
+      initSlides();
 
       const canvas = document.getElementById("leaf-layer");
       if (canvas instanceof HTMLCanvasElement) initLeaves(canvas);

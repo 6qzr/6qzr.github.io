@@ -43,8 +43,8 @@ const grouped = (Object.keys(stackGroupLabels) as StackGroup[]).map((group) => (
       <p class="t-eyebrow head__eyebrow on-scene">What I work with</p>
       <h2 class="t-h2 on-scene head__title">Tools I reach for.</h2>
       <p class="t-body on-scene head__note">
-        Backend and data on one side, and the tooling I use to go after my own
-        work on the other.
+        Backend and data on one side, and the tooling I use to keep it secure
+        on the other.
       </p>
     </header>
 
@@ -77,7 +77,10 @@ const grouped = (Object.keys(stackGroupLabels) as StackGroup[]).map((group) => (
         <div class="legend__group">
           <h3 class="t-eyebrow legend__label">{section.label}</h3>
           <ul>
-            {section.items.map((item) => <li class="t-small on-scene">{item.name}</li>)}
+            {/* on-glass-soft, not on-scene: this list sits on a glass panel,
+                and on-scene carries a dark halo meant for text over the
+                photograph, which reads as a smudge here. */}
+            {section.items.map((item) => <li class="t-small on-glass-soft">{item.name}</li>)}
           </ul>
         </div>
       ))}
@@ -201,9 +204,6 @@ const grouped = (Object.keys(stackGroupLabels) as StackGroup[]).map((group) => (
     margin: 0;
     padding: 0;
     list-style: none;
-  }
-  .legend li {
-    color: var(--ink-soft);
   }
 
   /* On phones the spiral is too small to read, so show the grouped list only. */

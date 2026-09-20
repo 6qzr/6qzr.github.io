@@ -1,137 +1,36 @@
 ---
+import { scenePlaceholder } from "../data/scene-placeholder";
+
 /**
  * The fixed landscape that every glass surface floats above.
  *
- * The photograph is the real scene. The layered SVG stays underneath it as the
- * themed fallback: it is what shows while the photo is still downloading, if
- * the photo ever 404s, and it keeps the page coherent rather than blank-white
- * in that first moment.
- *
- * To go back to the drawn scene alone, pass `photo={false}`.
+ * Behind the photograph sits an inline 430-byte blurred copy of the same
+ * photograph, so the first paint already looks like the scene that is loading.
+ * An earlier version used a drawn SVG landscape here, which was visibly a
+ * different picture and flashed on every refresh.
  */
-interface Props {
-  photo?: boolean;
-}
-const { photo = true } = Astro.props;
-
 const widths = [480, 800, 1200, 1670];
 const webpSet = widths.map((w) => `/images/scene-${w}.webp ${w}w`).join(", ");
 const jpgSet = widths.map((w) => `/images/scene-${w}.jpg ${w}w`).join(", ");
 ---
 
 <div class="scene" aria-hidden="true">
-  <svg
-    class="scene__svg"
-    viewBox="0 0 1600 900"
-    preserveAspectRatio="xMidYMax slice"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <defs>
-      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="var(--scene-sky-top)" />
-        <stop offset="55%" stop-color="var(--scene-sky-mid)" />
-        <stop offset="100%" stop-color="var(--scene-sky-low)" />
-      </linearGradient>
+  <div class="scene__placeholder" style={`background-image:url("${scenePlaceholder}")`}></div>
 
-      <radialGradient id="sunGlow" cx="0.72" cy="0.24" r="0.42">
-        <stop offset="0%" stop-color="var(--scene-sun)" />
-        <stop offset="100%" stop-color="transparent" />
-      </radialGradient>
-
-      <linearGradient id="hillFar" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="var(--scene-hill-far)" />
-        <stop offset="100%" stop-color="var(--scene-hill-mid)" />
-      </linearGradient>
-
-      <linearGradient id="hillNear" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="var(--scene-hill-near)" />
-        <stop offset="100%" stop-color="var(--scene-ground)" />
-      </linearGradient>
-
-      <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
-        <feGaussianBlur stdDeviation="18" />
-      </filter>
-      <filter id="softer" x="-30%" y="-30%" width="160%" height="160%">
-        <feGaussianBlur stdDeviation="38" />
-      </filter>
-    </defs>
-
-    <rect width="1600" height="900" fill="url(#sky)" />
-    <rect width="1600" height="900" fill="url(#sunGlow)" />
-
-    <g class="scene__clouds" filter="url(#soft)" opacity="0.55">
-      <ellipse cx="300" cy="170" rx="210" ry="46" fill="var(--scene-sky-low)" />
-      <ellipse cx="430" cy="148" rx="150" ry="36" fill="var(--scene-sky-low)" />
-      <ellipse cx="1080" cy="130" rx="250" ry="52" fill="var(--scene-sky-low)" />
-      <ellipse cx="1260" cy="160" rx="170" ry="38" fill="var(--scene-sky-low)" />
-      <ellipse cx="760" cy="96" rx="190" ry="30" fill="var(--scene-sky-low)" />
-    </g>
-
-    <path
-      class="scene__layer scene__layer--far"
-      d="M0 452 L118 402 L206 434 L308 366 L392 408 L474 356 L566 404 L664 344 L742 392 L838 352 L936 406 L1032 362 L1130 410 L1226 372 L1324 414 L1428 380 L1520 420 L1600 392 L1600 900 L0 900 Z"
-      fill="url(#hillFar)"
-      opacity="0.62"
+  <picture>
+    <source type="image/webp" srcset={webpSet} sizes="100vw" />
+    <img
+      class="scene__photo"
+      src="/images/scene-1670.jpg"
+      srcset={jpgSet}
+      sizes="100vw"
+      alt=""
+      width="1670"
+      height="941"
+      decoding="async"
+      fetchpriority="high"
     />
-
-    <path
-      class="scene__layer scene__layer--mid"
-      d="M0 560 C 180 500, 300 592, 470 548 C 640 504, 760 590, 930 556 C 1100 522, 1240 596, 1400 552 C 1490 527, 1550 556, 1600 540 L1600 900 L0 900 Z"
-      fill="var(--scene-hill-mid)"
-      opacity="0.85"
-    />
-
-    <g class="scene__layer scene__layer--trees" fill="var(--scene-hill-near)" opacity="0.72">
-      <path d="M60 566 l15 -46 l15 46 z" />
-      <path d="M128 572 l12 -36 l12 36 z" />
-      <path d="M212 560 l18 -54 l18 54 z" />
-      <path d="M296 574 l13 -40 l13 40 z" />
-      <path d="M352 566 l16 -50 l16 50 z" />
-      <path d="M470 556 l14 -44 l14 44 z" />
-      <path d="M536 566 l11 -34 l11 34 z" />
-      <path d="M624 560 l17 -52 l17 52 z" />
-      <path d="M712 570 l12 -38 l12 38 z" />
-      <path d="M806 558 l15 -48 l15 48 z" />
-      <path d="M900 566 l13 -40 l13 40 z" />
-      <path d="M1004 556 l18 -56 l18 56 z" />
-      <path d="M1092 568 l12 -36 l12 36 z" />
-      <path d="M1188 558 l16 -50 l16 50 z" />
-      <path d="M1284 570 l13 -42 l13 42 z" />
-      <path d="M1378 556 l15 -48 l15 48 z" />
-      <path d="M1470 566 l12 -38 l12 38 z" />
-      <path d="M1544 558 l16 -50 l16 50 z" />
-    </g>
-
-    <path
-      class="scene__layer scene__layer--near"
-      d="M0 686 C 220 640, 420 716, 640 680 C 860 644, 1060 720, 1280 684 C 1420 661, 1520 690, 1600 672 L1600 900 L0 900 Z"
-      fill="url(#hillNear)"
-    />
-
-    <ellipse
-      cx="800" cy="676" rx="900" ry="54"
-      fill="var(--scene-sky-low)" opacity="0.28" filter="url(#softer)"
-    />
-  </svg>
-
-  {
-    photo && (
-      <picture>
-        <source type="image/webp" srcset={webpSet} sizes="100vw" />
-        <img
-          class="scene__photo"
-          src="/images/scene-1670.jpg"
-          srcset={jpgSet}
-          sizes="100vw"
-          alt=""
-          width="1670"
-          height="941"
-          decoding="async"
-          fetchpriority="high"
-        />
-      </picture>
-    )
-  }
+  </picture>
 
   <!-- Legibility scrim. Content sits on top of this, the scene below it. -->
   <div class="scene__scrim"></div>
@@ -146,15 +45,7 @@ const jpgSet = widths.map((w) => `/images/scene-${w}.jpg ${w}w`).join(", ");
     background-color: var(--bg);
   }
 
-  .scene__svg {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    transform: scale(1.06);
-    transform-origin: center bottom;
-  }
-
+  .scene__placeholder,
   .scene__photo {
     position: absolute;
     inset: 0;
@@ -166,18 +57,32 @@ const jpgSet = widths.map((w) => `/images/scene-${w}.jpg ${w}w`).join(", ");
     object-position: 50% 46%;
   }
 
+  .scene__placeholder {
+    background-size: cover;
+    background-position: 50% 46%;
+    /* Scaled up so the 32px source has no visible pixel edges, and blurred so
+       the handover to the full photo is imperceptible. */
+    transform: scale(1.06);
+    filter: blur(18px);
+  }
+
   /* Dusk is the same place at a different hour, so the photo is graded rather
-     than swapped for a second image. */
-  :global(.dark) .scene__photo {
+     than swapped for a second image. The placeholder is graded identically,
+     otherwise it would flash bright before the photo lands. */
+  :global(.dark) .scene__photo,
+  :global(.dark) .scene__placeholder {
     filter: brightness(0.5) saturate(0.8) contrast(1.04) hue-rotate(-6deg);
+  }
+  :global(.dark) .scene__placeholder {
+    filter: brightness(0.5) saturate(0.8) contrast(1.04) hue-rotate(-6deg) blur(18px);
   }
 
   /*
     In daylight this does one job only: fade the photo into the page background
     low down, where the glass panels live. It deliberately does NOT darken the
-    sky. Stacking a scene scrim under the hero's own wash took the top-left to
-    roughly 0.87 opacity and drained the photograph of the brightness that made
-    it worth using. Legibility is the hero's problem, handled locally there.
+    sky, because stacking a scene scrim under the hero's own wash drained the
+    brightness out of the photograph. Legibility is the hero's problem, handled
+    locally there.
   */
   .scene__scrim {
     position: absolute;
@@ -190,27 +95,5 @@ const jpgSet = widths.map((w) => `/images/scene-${w}.jpg ${w}w`).join(", ");
     background:
       linear-gradient(to bottom, rgb(3 11 19 / 0.3) 0%, rgb(3 11 19 / 0) 42%),
       linear-gradient(to top, var(--bg) 0%, rgb(0 0 0 / 0) 34%);
-  }
-
-  /* Parallax on the drawn fallback only; the photo is already fixed, which
-     gives the same effect for free. */
-  .scene__layer {
-    transform: translate3d(0, calc(var(--scroll, 0) * var(--depth, 0) * 1px), 0);
-    will-change: transform;
-  }
-  .scene__layer--far   { --depth: 14; }
-  .scene__layer--mid   { --depth: 26; }
-  .scene__layer--trees { --depth: 30; }
-  .scene__layer--near  { --depth: 44; }
-  .scene__clouds {
-    transform: translate3d(calc(var(--scroll, 0) * 18px), 0, 0);
-    will-change: transform;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .scene__layer,
-    .scene__clouds {
-      transform: none;
-    }
   }
 </style>

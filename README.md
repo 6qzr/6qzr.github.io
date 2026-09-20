@@ -72,9 +72,12 @@ commit history, or any image tool — just keep the filenames.
 Dark mode grades the same photograph down to dusk with a CSS filter rather than
 loading a second image.
 
-Behind the photo sits a layered SVG landscape (`NatureScene.astro`) that
-re-themes from CSS variables. It is what shows while the photo downloads and if
-the photo ever 404s. Pass `photo={false}` to use the drawn scene alone.
+Behind it sits an inline 430-byte blurred copy of the same photograph
+(`src/data/scene-placeholder.ts`), so the first paint already looks like the
+scene that is loading. An earlier version used a drawn SVG landscape here, but
+that was visibly a different picture and flashed on every refresh. The
+placeholder is graded by the same dark-mode filter, otherwise it would flash
+bright before the photo lands.
 
 **Composition note:** the photo puts a figure dead centre. The hero copy
 therefore sits upper-left, over sky and mountain, so the two never compete —

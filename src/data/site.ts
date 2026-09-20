@@ -21,11 +21,15 @@ export const person = {
   cv: "/cv/Mohammed-Al-Abri-CV.pdf",
 
   /** The line that lands before any job title does. */
-  headline: "I build things carefully,\nthen try to break them.",
+  headline: "Curious about how things work.\nCareful about how they last.",
 
-  /** One sentence for search results, link previews and the meta description. */
+  /**
+   * Doubles as the hero lede and the meta description, so it has to state the
+   * three things he can be hired for in one breath: building, securing what he
+   * builds, and security work in its own right.
+   */
   summary:
-    "Computer Science graduate specialising in cybersecurity, building backends in .NET and thinking hard about how they fail. Based in Muscat, Oman.",
+    "I build backends in .NET, secure what I build, and take on cybersecurity work in its own right. Computer Science graduate, based in Muscat, Oman.",
 
   roles: ["Full-stack developer", "Cybersecurity"],
 } as const;
@@ -36,8 +40,8 @@ export const about = {
   title: "Curious first,\nengineer second.",
   paragraphs: [
     "I am a Computer Science graduate from Sultan Qaboos University, where I specialised in cybersecurity and computing infrastructure. What actually drives me is simpler than that: I want to understand how a thing works all the way down, and I am not satisfied until I do.",
-    "That curiosity pulls in two directions at once. One half of me wants to build: to design the data model, get the architecture right, and ship something people rely on. The other half immediately wants to know where it breaks, who could abuse it, and what happens on the worst day.",
-    "I have found those two instincts are the same instinct. The people who build most carefully are usually the ones who have spent time breaking things.",
+    "That curiosity pulls in two directions at once. One half of me wants to build: to design the data model, get the architecture right, and ship something people rely on. The other half wants to know it will still be standing on a bad day, and to be the reason it is.",
+    "I have found those two instincts are the same instinct. Building something well and protecting it are the same care, applied at different moments.",
   ],
   /** Small, human facts. These especially should become his own. */
   facts: [
@@ -54,7 +58,7 @@ export const about = {
  */
 export const duality = {
   eyebrow: "How the two halves fit",
-  title: "Build it. Then break it.",
+  title: "Two halves of the same instinct.",
   sides: [
     {
       key: "build",
@@ -69,10 +73,10 @@ export const duality = {
       ],
     },
     {
-      key: "break",
-      label: "Breaking",
-      lede: "The same systems, viewed by someone looking for a way in.",
-      body: "A rotation across SOC, application security, GRC and network security at Ooredoo taught me what enterprise defence actually looks like day to day. My graduation project went the other way, building the tooling that finds vulnerabilities rather than waiting to be told about them.",
+      key: "protect",
+      label: "Protecting",
+      lede: "The same systems, guarded against the people looking for a way in.",
+      body: "A rotation across SOC, application security, GRC and network security at Ooredoo taught me what enterprise defence actually looks like day to day. My graduation project approached it from the other side, building the tooling that finds vulnerabilities early rather than waiting to be told about them.",
       points: [
         "SIEM monitoring and incident response",
         "Nmap, Wireshark, MITRE ATT&CK",

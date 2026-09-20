@@ -125,12 +125,10 @@ const personSchema = {
     <script>
       import { initTheme } from "../scripts/theme";
       import { initReveal } from "../scripts/reveal";
-      import { initParallax } from "../scripts/parallax";
       import { initLeaves } from "../scripts/leaves";
 
       initTheme();
       initReveal();
-      initParallax();
 
       const canvas = document.getElementById("leaf-layer");
       if (canvas instanceof HTMLCanvasElement) initLeaves(canvas);

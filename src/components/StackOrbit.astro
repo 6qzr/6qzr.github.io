@@ -39,16 +39,11 @@ const grouped = (Object.keys(stackGroupLabels) as StackGroup[]).map((group) => (
 
 <section class="section" id="stack">
   <div class="shell">
-    <header class="head" data-reveal>
-      <p class="t-eyebrow head__eyebrow on-scene">What I work with</p>
-      <h2 class="t-h2 on-scene head__title">Tools I reach for.</h2>
-      <p class="t-body on-scene head__note">
-        Backend and data on one side, and the tooling I use to keep it secure
-        on the other.
-      </p>
-    </header>
-
-    <!-- Side by side on wide screens, so the section fits one slide. -->
+    <!--
+      The heading sits in the column with the list rather than centred above
+      the whole thing. Floating on its own over a two-column layout, it read
+      as detached from both halves.
+    -->
     <div class="split">
       <div class="orbit-wrap" data-reveal>
         <div class="orbit" data-orbit>
@@ -69,24 +64,35 @@ const grouped = (Object.keys(stackGroupLabels) as StackGroup[]).map((group) => (
         </div>
       </div>
 
-      <!--
-        The spiral shows only the headline tools, and it moves. This grouped
-        list is the authoritative one: it carries everything, it is readable at
-        a glance, and it survives with no motion, no JavaScript and a screen
-        reader.
-      -->
-      <div class="legend glass-deep" data-reveal>
-        {grouped.map((section) => (
-          <div class="legend__group">
-            <h3 class="t-eyebrow legend__label">{section.label}</h3>
-            <ul>
-              {/* on-glass-soft, not on-scene: this list sits on a glass panel,
-                  and on-scene carries a dark halo meant for text over the
-                  photograph, which reads as a smudge here. */}
-              {section.items.map((item) => <li class="t-small on-glass-soft">{item.name}</li>)}
-            </ul>
-          </div>
-        ))}
+      <div class="side">
+        <header class="head" data-reveal>
+          <p class="t-eyebrow head__eyebrow on-scene">What I work with</p>
+          <h2 class="t-h2 on-scene head__title">Tools I reach for.</h2>
+          <p class="t-body on-scene head__note">
+            Backend and data on one side, and the tooling I use to keep it
+            secure on the other.
+          </p>
+        </header>
+
+        <!--
+          The spiral shows only the headline tools, and it moves. This grouped
+          list is the authoritative one: it carries everything, it is readable
+          at a glance, and it survives with no motion, no JavaScript and a
+          screen reader.
+        -->
+        <div class="legend glass-deep" data-reveal data-reveal-delay="90">
+          {grouped.map((section) => (
+            <div class="legend__group">
+              <h3 class="t-eyebrow legend__label">{section.label}</h3>
+              <ul>
+                {/* on-glass-soft, not on-scene: this list sits on a glass
+                    panel, and on-scene carries a dark halo meant for text over
+                    the photograph, which reads as a smudge here. */}
+                {section.items.map((item) => <li class="t-small on-glass-soft">{item.name}</li>)}
+              </ul>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   </div>
@@ -112,7 +118,7 @@ const grouped = (Object.keys(stackGroupLabels) as StackGroup[]).map((group) => (
 
   .head {
     max-width: 48ch;
-    margin: 0 auto var(--spacing-phi-3);
+    margin: 0 auto var(--spacing-phi-2);
     text-align: center;
   }
   .head__eyebrow { margin: 0 0 0.6rem; }
@@ -123,6 +129,11 @@ const grouped = (Object.keys(stackGroupLabels) as StackGroup[]).map((group) => (
     display: grid;
     gap: var(--spacing-phi-3);
     align-items: center;
+  }
+
+  .side {
+    display: grid;
+    gap: var(--spacing-phi-2);
   }
 
   .orbit-wrap {
@@ -233,8 +244,14 @@ const grouped = (Object.keys(stackGroupLabels) as StackGroup[]).map((group) => (
      single slide instead of stacking to more than one and a half. */
   @media (min-width: 62rem) {
     .split {
-      grid-template-columns: 1fr 0.85fr;
+      grid-template-columns: 1fr 0.95fr;
       gap: var(--spacing-phi-4);
+    }
+    /* Left-aligned in its column: centred text beside a circle looks like it
+       is trying and failing to line up with something. */
+    .head {
+      margin: 0 0 var(--spacing-phi-2);
+      text-align: left;
     }
     .legend {
       columns: 2;

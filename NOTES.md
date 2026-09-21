@@ -112,15 +112,25 @@ const vh = document.documentElement.clientHeight;
 
 Getting there meant laying the dense sections out sideways rather than cutting
 anything, and splitting the path in two: the spiral sits beside the stack list,
-experience runs as three roles side by side, and education plus certificates
-get their own slide. `global.css` falls back to `proximity` below 44rem tall or
+and education plus certificates get their own slide. Experience keeps the
+vertical timeline with a marker per entry: as a row of three cards the unequal
+heights read as broken, where on a thread they read as entries simply having
+different amounts to say. `global.css` falls back to `proximity` below 44rem tall or
 48rem wide, where sections stack and grow.
 
 **How it glides** is `src/scripts/slides.ts`. CSS snap decides where the page
 lands but gives no control over how it gets there, and Chrome's native snap
-animation is short and lands hard. The controller reads a scroll intent and
-animates to the next section over 820ms with an ease that starts and ends at
-rest, switching native snap off for the duration so the two do not fight.
+animation lands hard. The controller reads a scroll intent and animates to the
+next section, switching native snap off for the duration so the two do not
+fight.
+
+What makes a hijacked scroll feel laggy is not the duration on its own, it is
+being ignored. A first attempt ran 820ms and swallowed every wheel event until
+it finished, so a second flick did nothing and the page felt stuck. It is now
+460ms, eased out so it leaves immediately and settles softly, and
+**re-targetable**: a flick mid-slide aims at the next one and continues from
+wherever the page currently is. `INTENT_GAP` stops one trackpad flick, which
+fires dozens of events, from running away through the whole page.
 
 It is deliberately narrow, because hijacking the wheel is user-hostile when
 overdone. It steps aside entirely under reduced motion, below the fallback

@@ -29,11 +29,21 @@ updating the path in `site.ts` if the filename changes.
 
 ## Traps
 
-**Put `data-reveal` on the glass panel itself, never on a wrapper around it.**
-A filling opacity animation creates a stacking context, so a `backdrop-filter`
-on a child samples that group instead of the page behind it and the blur has
-nothing to blur. The timeline panels looked visibly more transparent than every
-other card until this was fixed.
+**Glass must sit on the outermost transformed or animated element, never
+inside one.** A `transform`, a `filter`, or a filling opacity animation on an
+ancestor makes that ancestor a backdrop root, so a `backdrop-filter` on a
+descendant has nothing behind it to blur and the panel goes flat and
+see-through. This has bitten twice:
+
+- The timeline panels, where `data-reveal` was on the `<li>` wrapper.
+- The project deck, where the card was inside a transformed positioning
+  wrapper *and* the deck carried `data-reveal`. The fix was to move
+  `glass-deep` onto the transformed `.deck__card` and strip the surface from
+  the card inside, so there is one pane of glass rather than two stacked.
+
+The deck also carries no `data-reveal`, for a second reason: the `rise`
+keyframes animate `transform` with `forwards`, which would pin the card over
+the placement the stack script sets.
 
 **Fallback font metrics are measured, not guessed.** `global.css` declares
 `Inter Fallback` and `Instrument Serif Fallback` with `size-adjust`,
@@ -70,6 +80,18 @@ width and about five on a phone, where alternates are hidden in CSS. That is
 why only `spotlight` entries ride it and the full list sits below. The radius
 inset in `orbit.ts` is proportional rather than a flat 80px, which a phone
 container cannot spare.
+
+**The project deck is fixed height.** Cards are absolutely positioned and
+placed by transform, so the deck reserves one card's worth of space however
+many there are, and a card whose content exceeds that height is clipped
+silently. `ProjectCard` takes a `compact` prop that trims the highlights to two
+for the deck; the detail page carries the rest. Re-measure after any content
+change:
+
+```js
+[...document.querySelectorAll('.deck__card .card')]
+  .map(c => Math.max(0, c.scrollHeight - c.clientHeight));
+```
 
 ## Design notes
 

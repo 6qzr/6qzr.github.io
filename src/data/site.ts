@@ -203,10 +203,15 @@ export const certificates = [
   },
 ] as const;
 
+/*
+ * Absolute, not bare fragments. A bare `#about` does nothing on a project
+ * page, because that section only exists on the home page, so every nav link
+ * was dead once you left it.
+ */
 export const nav = [
-  { label: "About", href: "#about" },
-  { label: "Craft", href: "#craft" },
-  { label: "Work", href: "#work" },
-  { label: "Path", href: "#path" },
-  { label: "Contact", href: "#contact" },
+  { label: "About", href: "/#about" },
+  { label: "Craft", href: "/#craft" },
+  { label: "Work", href: "/#work" },
+  { label: "Path", href: "/#path" },
+  { label: "Contact", href: "/#contact" },
 ] as const;

@@ -11,21 +11,59 @@ const projects = (await getCollection("projects", ({ data }) => data.featured)).
   <div class="shell">
     <header class="head" data-reveal>
       <p class="t-eyebrow head__eyebrow on-scene">Selected work</p>
-      <h2 class="t-h2 on-scene head__title">Two projects, one for each half.</h2>
+      <h2 class="t-h2 on-scene head__title">Three that carry weight.</h2>
       <p class="t-body head__note on-scene">
-        The two that carry weight. The rest is on
+        Tap the top card to deal the next one. The rest is on
         <a href="https://github.com/6qzr" target="_blank" rel="noopener noreferrer">GitHub</a>.
       </p>
     </header>
 
-    <div class="grid">
-      {projects.map((project, index) => (
-        <ProjectCard project={project} index={index} />
-      ))}
-    </div>
+    <div class="deck" data-card-stack>
+      <div class="deck__cards">
+        {projects.map((project, index) => (
+          <div class="deck__card glass-deep" data-card>
+            <ProjectCard project={project} index={index} compact />
+          </div>
+        ))}
+      </div>
 
+      <!-- The deck is the flourish; these are how it is actually operated,
+           including by keyboard and by anyone who does not realise the cards
+           are clickable. -->
+      <div class="deck__controls">
+        <button type="button" class="deck__button press" data-stack-prev aria-label="Previous project">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M19 12H6M13 5l-7 7 7 7" />
+          </svg>
+        </button>
+
+        <ul class="deck__dots">
+          {projects.map((project, index) => (
+            <li>
+              <span class="deck__dot" data-stack-dot aria-hidden="true"></span>
+              <span class="sr-only">{project.data.title}</span>
+            </li>
+          ))}
+        </ul>
+
+        <button type="button" class="deck__button press" data-stack-next aria-label="Next project">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h13M12 5l7 7-7 7" />
+          </svg>
+        </button>
+
+        <p class="deck__status t-small on-scene" data-stack-status aria-live="polite"></p>
+      </div>
+    </div>
   </div>
 </section>
+
+<script>
+  import { initCardStack } from "../scripts/cardstack";
+
+  const root = document.querySelector<HTMLElement>("[data-card-stack]");
+  if (root) initCardStack(root);
+</script>
 
 <style>
   .section {
@@ -46,27 +84,157 @@ const projects = (await getCollection("projects", ({ data }) => data.featured)).
   .head__eyebrow { margin: 0 0 0.6rem; }
   .head__title   { margin: 0 0 0.6rem; }
   .head__note    { margin: 0; opacity: 0.88; }
+  .head__note a  { color: inherit; text-underline-offset: 3px; }
 
-  .grid {
+  .deck {
     display: grid;
+    justify-items: center;
     gap: var(--spacing-phi-2);
   }
 
-  .more {
-    margin: var(--spacing-phi-2) 0 0;
-    text-align: center;
-    opacity: 0.85;
-  }
-  .more a {
-    color: inherit;
-    text-underline-offset: 3px;
+  /*
+    The cards all occupy the same box and are placed by transform, so the deck
+    holds one card's worth of space no matter how many there are. The extra
+    right padding is room for the fan to lean into.
+  */
+  .deck__cards {
+    position: relative;
+    width: min(100%, 38rem);
+    /*
+      Tall enough for the longest card, because a deck whose height changed
+      per card would jump on every deal. Narrow screens need considerably
+      more: the same words wrap to far more lines, and the card clipped by
+      up to 167px at 375px wide.
+    */
+    height: clamp(33rem, 72vh, 38rem);
+    padding-right: 2rem;
   }
 
-  @media (min-width: 58rem) {
-    .grid {
-      grid-template-columns: repeat(2, 1fr);
-      gap: var(--spacing-phi-3);
-      align-items: stretch;
+  @media (min-width: 48rem) {
+    .deck__cards {
+      height: clamp(30rem, 58vh, 32rem);
+      padding-right: 3rem;
+    }
+  }
+
+  /*
+    The glass lives here, on the transformed element, not on the card inside.
+    A transform makes an element a backdrop root, so a backdrop-filter on a
+    descendant has nothing behind it to blur and the panel goes flat and
+    see-through. The deck also carries no data-reveal for the same reason: a
+    filling opacity animation on an ancestor breaks it the same way, and its
+    keyframes animate transform, which would fight the deck's own.
+  */
+  .deck__card {
+    position: absolute;
+    inset: 0;
+    border-radius: clamp(1.25rem, 2.5vw, 2rem);
+    transform-origin: 50% 90%;
+    transition:
+      transform 620ms cubic-bezier(0.33, 0, 0.2, 1),
+      box-shadow 300ms ease;
+    will-change: transform;
+  }
+
+  /* Before the script runs the cards are simply stacked square, which is a
+     reasonable thing to see for the moment it takes, and the whole thing
+     remains readable if the script never runs at all. */
+  .deck:not(.is-ready) .deck__card:not(:first-child) {
+    opacity: 0;
+  }
+
+  /* The inner card keeps its layout and type but gives up its surface, so
+     there is exactly one pane of glass per card rather than two stacked. */
+  .deck__card :global(.card) {
+    height: 100%;
+    overflow: hidden;
+    background: none;
+    border: none;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .deck__card :global(.card)::before {
+    display: none;
+  }
+
+  .deck.is-ready .deck__card.is-front {
+    cursor: pointer;
+  }
+  .deck.is-ready .deck__card.is-front:hover {
+    /* A small lift on hover, so it reads as something you can pick up. */
+    filter: drop-shadow(0 18px 34px rgb(4 16 28 / 0.22));
+  }
+
+  .deck__controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .deck__button {
+    display: grid;
+    place-items: center;
+    width: 2.4rem;
+    height: 2.4rem;
+    border: 1px solid var(--glass-edge);
+    border-radius: 999px;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(175%);
+    backdrop-filter: blur(var(--glass-blur)) saturate(175%);
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .deck__button svg {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+  .deck__button:hover {
+    background: var(--glass-bg-deep);
+  }
+
+  .deck__dots {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .deck__dot {
+    display: block;
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--ink-on-scene) 45%, transparent);
+    transition: background-color 240ms ease, transform 240ms ease;
+  }
+  .deck__dot.is-current {
+    background: var(--ink-on-scene);
+    transform: scale(1.35);
+  }
+
+  .deck__status {
+    margin: 0 0 0 0.35rem;
+    opacity: 0.8;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .deck__card {
+      transition: none;
     }
   }
 </style>

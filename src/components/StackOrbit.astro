@@ -258,8 +258,32 @@ const grouped = (Object.keys(stackGroupLabels) as StackGroup[]).map((group) => (
     }
   }
 
-  /* On phones the spiral is too small to read, so show the grouped list only. */
+  /*
+    The spiral is the centrepiece, so it stays on phones. It only needs the
+    chips scaled down to suit the smaller radius; hiding it was the wrong
+    answer to them overlapping.
+  */
   @media (max-width: 40rem) {
-    .orbit-wrap { display: none; }
+    .orbit {
+      width: min(100%, 22rem);
+    }
+    .chip {
+      gap: 0.3rem;
+      padding: 0.26rem 0.55rem;
+      font-size: 0.72rem;
+    }
+    .chip__dot {
+      width: 0.3rem;
+      height: 0.3rem;
+    }
+    /*
+      Show every other chip. A 352px spiral cannot hold nine readable pills:
+      adjacent ones overlapped by half. Hiding alternates doubles the spacing
+      along the same path, and nothing is lost because the chips are a moving
+      duplicate of the grouped list below.
+    */
+    .chip:nth-of-type(even) {
+      display: none;
+    }
   }
 </style>

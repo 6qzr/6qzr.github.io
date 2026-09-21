@@ -64,8 +64,17 @@ export function initOrbit(container: HTMLElement): () => void {
 
   const measure = (): void => {
     const rect = container.getBoundingClientRect();
-    // Leave room for the card itself so the outermost one never clips.
-    radiusMax = Math.max(80, Math.min(rect.width, rect.height) / 2 - 80);
+    const size = Math.min(rect.width, rect.height);
+    /*
+      Room for the chip itself, so the outermost never clips.
+
+      Proportional, not a flat 80px. On a phone the container is about 350px
+      across, and subtracting a desktop-sized inset left a radius of roughly
+      99px: small enough that the spiral was unreadable, which is why it used
+      to be hidden below 40rem entirely.
+    */
+    const inset = Math.max(44, Math.min(80, size * 0.15));
+    radiusMax = Math.max(70, size / 2 - inset);
   };
 
   const place = (card: OrbitCard): void => {

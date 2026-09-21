@@ -59,8 +59,11 @@ count and the tile size appear in `tools/render_leaves.py`,
 others and the canvas samples the sheet at the wrong offsets.
 
 **The spiral cannot hold many chips.** A golden spiral widens by phi every
-quarter turn, so the arc has room for roughly nine readable pills. That is why
-only `spotlight` entries ride it and the full list sits below.
+quarter turn, so the arc has room for roughly nine readable pills at desktop
+width and about five on a phone, where alternates are hidden in CSS. That is
+why only `spotlight` entries ride it and the full list sits below. The radius
+inset in `orbit.ts` is proportional rather than a flat 80px, which a phone
+container cannot spare.
 
 ## Design notes
 

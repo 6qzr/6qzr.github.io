@@ -52,6 +52,27 @@ const personSchema = {
     <link rel="sitemap" href="/sitemap-index.xml" />
 
     {/*
+      Fonts first. They gate the first paint of text, and without the preload
+      the page renders in the fallback and then reflows when the real font
+      arrives. The metric-matched fallbacks in global.css make that swap
+      invisible if it does happen; these make it usually not happen at all.
+    */}
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="/fonts/inter-latin-wght-normal.woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="/fonts/instrument-serif-latin-400-normal.woff2"
+      crossorigin
+    />
+
+    {/*
       The backdrop is the largest paint on the page. Preloading it with the
       same srcset the <picture> uses means the browser starts the right file
       immediately, instead of waiting to discover it in the markup.

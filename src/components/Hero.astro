@@ -8,7 +8,6 @@ const lines = person.headline.split("\n");
   <div class="hero__shell">
     <div class="hero__inner">
       <p class="hero__eyebrow t-eyebrow on-scene">
-        <span class="hero__dot" aria-hidden="true"></span>
         {person.location}
         <span class="hero__sep" aria-hidden="true">·</span>
         {person.roles.join(" · ")}
@@ -107,14 +106,6 @@ const lines = person.headline.split("\n");
     align-items: center;
     gap: 0.5rem;
     margin: 0;
-  }
-  .hero__dot {
-    width: 0.4rem;
-    height: 0.4rem;
-    border-radius: 999px;
-    background: var(--accent);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 28%, transparent);
-    flex: none;
   }
   .hero__sep {
     opacity: 0.5;

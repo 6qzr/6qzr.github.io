@@ -1,7 +1,65 @@
 @import "tailwindcss";
-@import "@fontsource-variable/inter";
-@import "@fontsource/instrument-serif";
 @import "./scene-placeholder.css";
+
+/* ---------------------------------------------------------------------------
+   Fonts
+
+   Declared here rather than imported from @fontsource so the URLs are stable
+   and can be preloaded from <head>. Latin only: the site has no other script,
+   and the other subsets were shipping unused.
+--------------------------------------------------------------------------- */
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/inter-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Instrument Serif";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/instrument-serif-latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+    U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/*
+   Metric-matched fallbacks.
+
+   Without these the page paints in the system font and then visibly resizes
+   when the real one arrives. Instrument Serif is 21% narrower than Georgia, so
+   the headline was rendering large and then shrinking, which is exactly what
+   that jump looked like.
+
+   The overrides are measured from the font files themselves, not guessed:
+   `size-adjust` is the ratio of average lowercase advance widths, and the
+   ascent and descent come from each font's OS/2 table scaled by that ratio.
+   Recompute them if either font is ever replaced.
+*/
+@font-face {
+  font-family: "Inter Fallback";
+  src: local("Segoe UI"), local("Arial"), local("Helvetica Neue"), local("Helvetica");
+  size-adjust: 108.73%;
+  ascent-override: 89.1%;
+  descent-override: 22.18%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: "Instrument Serif Fallback";
+  src: local("Georgia");
+  size-adjust: 78.58%;
+  ascent-override: 125.98%;
+  descent-override: 39.45%;
+  line-gap-override: 0%;
+}
 
 /* Class-based dark mode: the <html> element carries `.dark`. */
 @custom-variant dark (&:where(.dark, .dark *));
@@ -137,8 +195,12 @@
   --color-accent-soft: var(--accent-soft);
   --color-accent-ink: var(--accent-ink);
 
-  --font-sans: "Inter Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: "Instrument Serif", ui-serif, Georgia, serif;
+  /* The Fallback families carry the metric overrides, so the swap when the
+     real font lands is invisible rather than a resize. */
+  --font-sans: "Inter Variable", "Inter Fallback", system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+  --font-display: "Instrument Serif", "Instrument Serif Fallback", Georgia,
+    ui-serif, serif;
 
   /* Spacing steps derived from the golden ratio, so the rhythm is actually
      golden rather than merely described that way. */

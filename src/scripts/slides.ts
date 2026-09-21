@@ -30,11 +30,19 @@ const DURATION = 460;
 const WHEEL_THRESHOLD = 8;
 
 /**
- * Minimum time between accepted intents. Stops one trackpad flick, which
- * fires dozens of events, from running away through the whole page, while
- * still letting a determined scroll chain slide after slide.
+ * How long the wheel must be quiet before another flick is accepted.
+ *
+ * One flick of a wheel or trackpad is not one event, it is a burst of dozens.
+ * Throttling that burst on a timer was the bug behind the crawl: every 140ms
+ * another event was accepted and the animation restarted from wherever it had
+ * got to, so it never actually arrived. A keyboard press produces exactly one
+ * event, which is why the keys always felt right.
+ *
+ * So the wheel is locked for the whole gesture instead: one burst moves one
+ * slide, and the lock lifts once the animation has finished and the wheel has
+ * been still for this long.
  */
-const INTENT_GAP = 140;
+const WHEEL_QUIET = 120;
 
 /** Matches the stylesheet's fallback breakpoints. */
 const TOO_SMALL = "(max-height: 44rem), (max-width: 48rem)";
@@ -63,9 +71,12 @@ export function initSlides(): void {
 
   let animating = false;
   let frame = 0;
-  let lastIntent = 0;
-  /** Where the current animation is heading, so a flick can chain past it. */
+  /** Where the current animation is heading. */
   let aimedAt = -1;
+  /** True while a wheel gesture owns the page. */
+  let wheelLocked = false;
+  let lastWheel = 0;
+  let unlockTimer = 0;
 
   const nearestIndex = (): number => {
     const y = window.scrollY;
@@ -84,9 +95,32 @@ export function initSlides(): void {
   const release = (): void => {
     animating = false;
     aimedAt = -1;
+    wheelLocked = false;
+    window.clearTimeout(unlockTimer);
     cancelAnimationFrame(frame);
     // Hand control back to the browser's own snapping.
     root.style.scrollSnapType = "";
+  };
+
+  /**
+   * Lift the wheel lock once the slide has landed and the wheel has gone
+   * quiet. Checking both matters: a long trackpad glide easily outlasts the
+   * animation, and lifting the lock while it is still spinning would take the
+   * next event as a fresh flick.
+   */
+  const scheduleUnlock = (): void => {
+    window.clearTimeout(unlockTimer);
+    const remaining = WHEEL_QUIET - (performance.now() - lastWheel);
+    unlockTimer = window.setTimeout(
+      () => {
+        if (animating || performance.now() - lastWheel < WHEEL_QUIET) {
+          scheduleUnlock();
+          return;
+        }
+        wheelLocked = false;
+      },
+      Math.max(remaining, 20),
+    );
   };
 
   const slideTo = (index: number): void => {
@@ -121,7 +155,10 @@ export function initSlides(): void {
         frame = requestAnimationFrame(step);
         return;
       }
-      release();
+      animating = false;
+      aimedAt = -1;
+      root.style.scrollSnapType = "";
+      if (wheelLocked) scheduleUnlock();
     };
 
     frame = requestAnimationFrame(step);
@@ -133,21 +170,29 @@ export function initSlides(): void {
   /** Where the next move should start counting from. */
   const baseIndex = (): number => (aimedAt >= 0 ? aimedAt : nearestIndex());
 
-  const move = (direction: number): void => {
-    const now = performance.now();
-    if (now - lastIntent < INTENT_GAP) return;
-    lastIntent = now;
-    slideTo(baseIndex() + direction);
-  };
+  const move = (direction: number): void => slideTo(baseIndex() + direction);
 
   const onWheel = (event: WheelEvent): void => {
     if (!enabled()) return;
     // Let the browser handle zoom and horizontal intent.
     if (event.ctrlKey || Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
+
+    lastWheel = performance.now();
+
+    if (wheelLocked) {
+      // Mid-gesture. Swallow the rest of the burst so it cannot restart the
+      // animation, and keep pushing the unlock out while the wheel spins.
+      event.preventDefault();
+      scheduleUnlock();
+      return;
+    }
+
     if (Math.abs(event.deltaY) < WHEEL_THRESHOLD) return;
 
     event.preventDefault();
+    wheelLocked = true;
     move(event.deltaY > 0 ? 1 : -1);
+    scheduleUnlock();
   };
 
   const KEYS_FORWARD = new Set(["PageDown", "ArrowDown", " ", "Spacebar"]);

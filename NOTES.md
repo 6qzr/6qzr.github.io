@@ -35,6 +35,17 @@ on a child samples that group instead of the page behind it and the blur has
 nothing to blur. The timeline panels looked visibly more transparent than every
 other card until this was fixed.
 
+**Fallback font metrics are measured, not guessed.** `global.css` declares
+`Inter Fallback` and `Instrument Serif Fallback` with `size-adjust`,
+`ascent-override` and `descent-override` so the fallback occupies exactly the
+space the real font will. Without them the page painted in Georgia and then
+visibly shrank, because Instrument Serif is 21% narrower. Recompute with
+fontTools if either font changes: `size-adjust` is the ratio of average
+lowercase advance widths, and the ascent and descent come from the OS/2 table
+scaled by that ratio. Both fonts are self-hosted in `public/fonts` and
+preloaded from `Base.astro`, which is why they are declared by hand rather
+than imported from `@fontsource`.
+
 **Never put a `style` attribute on an element.** The Content Security Policy
 hashes stylesheets but cannot hash style attributes, so an inline one is
 silently blocked and simply does not apply. This already bit once: the backdrop
@@ -131,6 +142,14 @@ it finished, so a second flick did nothing and the page felt stuck. It is now
 **re-targetable**: a flick mid-slide aims at the next one and continues from
 wherever the page currently is. `INTENT_GAP` stops one trackpad flick, which
 fires dozens of events, from running away through the whole page.
+
+One wheel flick is a burst of dozens of events, so the wheel is **locked for
+the whole gesture**: the first event moves one slide and the rest are
+swallowed until the animation has finished and the wheel has been quiet for
+`WHEEL_QUIET`. Throttling the burst on a timer instead, which an earlier
+version did, restarted the animation every 140ms so it never arrived. A
+keyboard press produces exactly one event, which is why the keys always felt
+right while the wheel crawled.
 
 It is deliberately narrow, because hijacking the wheel is user-hostile when
 overdone. It steps aside entirely under reduced motion, below the fallback

@@ -85,6 +85,8 @@ export function initLeaves(canvas: HTMLCanvasElement): () => void {
   /** True while we still owe the visitor a gust but cannot play it yet. */
   let introArmed = false;
 
+  /** Device pixel ratio the canvas is currently scaled by. */
+  let dpr = 1;
   let sheet: CanvasImageSource | null = null;
   /** Theme-graded copy of the sheet, rebuilt only when the theme changes. */
   let graded: HTMLCanvasElement | null = null;
@@ -124,9 +126,9 @@ export function initLeaves(canvas: HTMLCanvasElement): () => void {
 
   /** The gust needs enough leaves to actually obscure the page. */
   const introCount = (): number => {
-    if (width < 640) return 46;
-    if (width < 1100) return 80;
-    return 124;
+    if (width < 640) return 40;
+    if (width < 1100) return 70;
+    return 104;
   };
 
   const spawnAmbient = (offscreen: boolean): Leaf => {
@@ -175,7 +177,7 @@ export function initLeaves(canvas: HTMLCanvasElement): () => void {
     const h = window.innerHeight || document.documentElement.clientHeight || 0;
     if (w === 0 || h === 0) return;
 
-    const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+    dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
     width = w;
     height = h;
     canvas.width = Math.floor(width * dpr);
@@ -213,14 +215,19 @@ export function initLeaves(canvas: HTMLCanvasElement): () => void {
     }
   };
 
+  /**
+   * Draws with an explicit `setTransform` rather than save/translate/rotate/
+   * restore. Two state-stack operations per leaf is cheap on its own but adds
+   * up across a hundred of them every frame during the opening gust.
+   */
   const drawLeaf = (leaf: Leaf, alpha: number): void => {
     if (!graded || alpha <= 0.004) return;
     const col = Math.floor(leaf.phase * FRAMES) % FRAMES;
     const size = leaf.size;
+    const cos = Math.cos(leaf.angle) * dpr;
+    const sin = Math.sin(leaf.angle) * dpr;
 
-    context.save();
-    context.translate(leaf.x, leaf.y);
-    context.rotate(leaf.angle);
+    context.setTransform(cos, sin, -sin, cos, leaf.x * dpr, leaf.y * dpr);
     context.globalAlpha = alpha;
     context.drawImage(
       graded,
@@ -233,7 +240,6 @@ export function initLeaves(canvas: HTMLCanvasElement): () => void {
       size * 2,
       size * 2,
     );
-    context.restore();
   };
 
   const step = (time: number): void => {
@@ -248,6 +254,7 @@ export function initLeaves(canvas: HTMLCanvasElement): () => void {
     gustPhase += 0.0042 * delta;
     const gust = 1 + Math.sin(gustPhase) * 0.45 + Math.sin(gustPhase * 2.3) * 0.18;
 
+    context.setTransform(dpr, 0, 0, dpr, 0, 0);
     context.clearRect(0, 0, width, height);
 
     // --- Opening gust -----------------------------------------------------
@@ -304,6 +311,8 @@ export function initLeaves(canvas: HTMLCanvasElement): () => void {
       drawLeaf(leaf, (0.26 + leaf.depth * 0.46) * ambientAlpha);
     }
 
+    // Leave the context in its base state for the next clearRect.
+    context.setTransform(dpr, 0, 0, dpr, 0, 0);
     frame = requestAnimationFrame(step);
   };
 
@@ -334,6 +343,7 @@ export function initLeaves(canvas: HTMLCanvasElement): () => void {
   const onMotionPreference = (): void => {
     if (reducedMotion.matches) {
       stop();
+      context.setTransform(dpr, 0, 0, dpr, 0, 0);
       context.clearRect(0, 0, width, height);
     } else {
       start();
@@ -365,18 +375,51 @@ export function initLeaves(canvas: HTMLCanvasElement): () => void {
       alreadyPlayed = false;
     }
 
+    /**
+     * Resolves once the backdrop photograph has settled, or shortly anyway.
+     *
+     * The gust used to start while the browser was still decoding a 400KB
+     * photograph, and the first frames of a hundred-leaf burst landed right on
+     * top of that work, which is what made the opening stutter. Waiting costs
+     * nothing visible: the placeholder is already painted.
+     */
+    const backdropSettled = (): Promise<void> =>
+      new Promise((resolve) => {
+        const img = document.querySelector<HTMLImageElement>(".scene__photo");
+        if (!img || img.complete) {
+          resolve();
+          return;
+        }
+        const done = (): void => resolve();
+        img.addEventListener("load", done, { once: true });
+        img.addEventListener("error", done, { once: true });
+        // Never wait indefinitely on a slow photo.
+        window.setTimeout(done, 1200);
+      });
+
     const requestedAt = performance.now();
     const image = new Image();
     image.decoding = "async";
     image.src = SHEET_SRC;
-    image.onload = () => {
+    image.onload = async () => {
+      // Decode up front, off the first animation frame. Otherwise the very
+      // first drawImage pays for it, in the one frame that most needs to be
+      // cheap.
+      try {
+        await image.decode();
+      } catch {
+        // Decode is an optimisation; drawImage still works without it.
+      }
       sheet = image;
       grade();
+
+      await backdropSettled();
+
       // On a slow connection the sheet can arrive long after the visitor has
       // started reading. Throwing a full-screen gust over them at that point
       // is an interruption, not an entrance, so past this window the site
       // just begins with the ambient drift.
-      const LATE_MS = 2000;
+      const LATE_MS = 2500;
       introArmed = !alreadyPlayed && performance.now() - requestedAt < LATE_MS;
       maybeArmIntro();
       start();

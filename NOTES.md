@@ -58,6 +58,12 @@ count and the tile size appear in `tools/render_leaves.py`,
 `tools/build_leaf_sheet.py` and `src/scripts/leaves.ts`. Change one without the
 others and the canvas samples the sheet at the wrong offsets.
 
+**The spiral holds five chips, and that is arithmetic.** Arc length on a
+logarithmic spiral is 3.41x the radius span, so the 536px orbit beside the list
+offers about 535px of curve. Nine chips put them 59px apart while averaging
+110px wide, which is why they collided; five gives 107px. Widen the orbit or
+add a chip and redo that sum.
+
 **The spiral cannot hold many chips.** A golden spiral widens by phi every
 quarter turn, so the arc has room for roughly nine readable pills at desktop
 width and about five on a phone, where alternates are hidden in CSS. That is
@@ -111,6 +117,12 @@ entirely if the sprite sheet arrives more than two seconds late.
 
 **Section scrolling** uses CSS scroll snap in `mandatory` mode: one gesture
 carries you the whole way to the next slide, with the content centred.
+
+**Snapping is opt-in per page**, via `slides` on `Base.astro`, which sets
+`data-slides` on `<html>`. It must be: a page with no slide sections still has
+a footer, and mandatory snapping with a single snap target pins the page to it.
+The project pages opened at the bottom and could not be scrolled up until this
+was scoped.
 
 That only works because **every section fits one screen**. Verified at
 1280x800, 1440x900 and 1536x864, where all seven measure exactly 1.00 screens.

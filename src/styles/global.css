@@ -229,11 +229,19 @@ html {
    * scroll-jacked sites unusable. The media query below is the safety net for
    * the case this cannot control: a viewport too short to fit a slide.
    */
-  scroll-snap-type: y mandatory;
-
   /* Snap targets and anchor links both land under the floating nav without
      this. It also fixes the nav links, which previously did. */
   scroll-padding-top: 5rem;
+}
+
+/*
+ * Snapping is opt-in per page, via `data-slides` on <html> from Base.astro.
+ * A page with no slide sections still has a footer, and mandatory snapping
+ * with a single snap target pins the page to it: the project pages opened at
+ * the bottom and could not be scrolled up.
+ */
+html[data-slides] {
+  scroll-snap-type: y mandatory;
 }
 
 /*
@@ -241,7 +249,7 @@ html {
  * the rhythm is even, and centring keeps their content off the top edge.
  * Sections taller than a screen simply stay tall and scroll normally.
  */
-main > section {
+[data-slides] main > section {
   scroll-snap-align: start;
   /* Exactly one screen, with the content centred in it. Sections are laid out
      to fit; `min-height` rather than `height` so nothing is ever clipped if a
@@ -251,7 +259,7 @@ main > section {
   align-content: center;
 }
 
-footer {
+[data-slides] footer {
   scroll-snap-align: start;
 }
 
@@ -264,7 +272,7 @@ footer {
  * anyone inside a section they cannot scroll through.
  */
 @media (max-height: 44rem), (max-width: 48rem) {
-  html {
+  html[data-slides] {
     scroll-snap-type: y proximity;
   }
 }
@@ -272,7 +280,7 @@ footer {
 /* Snapping moves the page on the reader's behalf, so it goes when they have
    asked for less motion. */
 @media (prefers-reduced-motion: reduce) {
-  html {
+  html[data-slides] {
     scroll-snap-type: none;
   }
 }

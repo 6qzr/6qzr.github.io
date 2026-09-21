@@ -90,25 +90,29 @@ export const duality = {
 /**
  * The full stack, listed under the spiral.
  *
- * `spotlight` marks the ones that ride the golden spiral. Only a handful can:
- * a golden spiral widens by phi every quarter turn, so the arc simply does not
- * have room for eighteen readable pills without them overlapping into mush.
- * The spiral shows the headline technologies; the list below carries the rest.
+ * `spotlight` marks the ones that ride the golden spiral: one per group, so
+ * the spiral mirrors the five headings in the list.
+ *
+ * Five is a measured limit, not a preference. Arc length on a logarithmic
+ * spiral is 3.41x the radius span, so the 536px orbit beside the list offers
+ * about 535px of curve. At nine chips that is 59px between them while the
+ * chips average 110px wide, which is why they collided. Five gives 107px.
+ * Widening the orbit or adding a chip means redoing that arithmetic.
  */
 export const stack = [
   { name: "C#", group: "language", spotlight: true },
   { name: "ASP.NET Core", group: "backend", spotlight: true },
-  { name: "EF Core", group: "backend", spotlight: true },
+  { name: "EF Core", group: "backend", spotlight: false },
   { name: "SQL Server", group: "data", spotlight: true },
   { name: "Java", group: "language", spotlight: false },
-  { name: "Python", group: "language", spotlight: true },
+  { name: "Python", group: "language", spotlight: false },
   { name: "SQL", group: "data", spotlight: false },
   { name: "Spring Boot", group: "backend", spotlight: false },
   { name: "REST APIs", group: "backend", spotlight: false },
   { name: "JWT Auth", group: "security", spotlight: false },
-  { name: "SIEM", group: "security", spotlight: true },
+  { name: "SIEM", group: "security", spotlight: false },
   { name: "Nmap", group: "security", spotlight: true },
-  { name: "Wireshark", group: "security", spotlight: true },
+  { name: "Wireshark", group: "security", spotlight: false },
   { name: "MITRE ATT&CK", group: "security", spotlight: false },
   { name: "Cryptography", group: "security", spotlight: false },
   { name: "Secure SDLC", group: "security", spotlight: false },

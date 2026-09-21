@@ -8,9 +8,18 @@ import Footer from "../components/Footer.astro";
 interface Props {
   title: string;
   description?: string;
+  /**
+   * Whether this page is built from full-screen slides.
+   *
+   * Scroll snapping is opt-in per page, and must be. A page without slide
+   * sections still has a footer, and `mandatory` snapping with a single snap
+   * target pins the page to that target: the project pages opened at the
+   * bottom and could not be scrolled back up.
+   */
+  slides?: boolean;
 }
 
-const { title, description = person.summary } = Astro.props;
+const { title, description = person.summary, slides = false } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, Astro.site).toString();
 const ogImage = new URL("/og.jpg", Astro.site).toString();
@@ -41,7 +50,7 @@ const personSchema = {
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-slides={slides ? "" : undefined}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />

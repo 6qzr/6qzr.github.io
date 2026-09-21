@@ -58,6 +58,10 @@ export function initSlides(): void {
   const coarse = window.matchMedia("(pointer: coarse)");
 
   const root = document.documentElement;
+  // Only pages built from slides. The project pages are ordinary documents and
+  // must scroll normally.
+  if (!root.hasAttribute("data-slides")) return;
+
   let targets: HTMLElement[] = [];
 
   const collect = (): void => {

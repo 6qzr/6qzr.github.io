@@ -174,10 +174,25 @@ export function initLeaves(canvas: HTMLCanvasElement): () => void {
     // browsers. Sizing the canvas to 0 there is unrecoverable unless we
     // re-measure when it becomes visible, which onVisibility now does.
     const w = window.innerWidth || document.documentElement.clientWidth || 0;
-    const h = window.innerHeight || document.documentElement.clientHeight || 0;
+    let h = window.innerHeight || document.documentElement.clientHeight || 0;
     if (w === 0 || h === 0) return;
 
-    dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+    /*
+     * iOS reports a different innerHeight depending on whether the Safari
+     * toolbar is showing, and slides it away during an ordinary scroll. Taken
+     * at face value that is a resize event mid-scroll, and this one reallocates
+     * a full-screen canvas at three device pixels per CSS pixel and rebuilds
+     * the leaf population. Holding the tallest height seen at this width makes
+     * the canvas the size of the screen with the toolbar hidden and leaves it
+     * there; a rotation changes the width, which starts the measurement again.
+     */
+    if (w === width) {
+      h = Math.max(h, height);
+    }
+    const nextDpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+    if (w === width && h === height && nextDpr === dpr) return;
+
+    dpr = nextDpr;
     width = w;
     height = h;
     canvas.width = Math.floor(width * dpr);

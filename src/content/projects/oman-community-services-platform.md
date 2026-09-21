@@ -2,6 +2,10 @@
 title: "Oman Community Services Platform"
 track: "fullstack"
 tagline: "A citizen reports a broken thing. The right department hears about it."
+brief: >-
+  A backend for municipal complaints. A citizen reports a pothole or a leak, the
+  API routes it to the department that owns that work, and both sides follow the
+  ticket through to a rating when it closes.
 role: "Team lead, 4 engineers"
 period: "2026 · Codeline .NET Bootcamp capstone"
 stack:
@@ -11,7 +15,7 @@ stack:
   - "JWT"
   - "Swagger"
 highlights:
-  - "Led four engineers through the full lifecycle (ERD first, then architecture, then code) and owned the branching strategy that kept a shared codebase coherent."
+  - "Led four engineers from ERD to architecture to code, and owned the branching strategy that kept a shared codebase coherent."
   - "Designed a 10-entity relational model with automatic department routing, status workflows, comments, notifications and citizen feedback ratings."
   - "Built on a three-layer architecture (repository, service, controller) with soft deletes, role-based access scoping and DTO-based contracts."
   - "Delivered through a structured GitHub workflow: 56 tracked issues across two sprints."

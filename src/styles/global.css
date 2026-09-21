@@ -277,6 +277,23 @@ html[data-slides] {
   }
 }
 
+/*
+ * Phones pay for glass in a way a laptop does not. Every blurred surface is a
+ * full read-back of what is behind it, at three device pixels per CSS pixel,
+ * over a fixed photograph that is itself the size of the screen. A slightly
+ * shallower blur keeps the material reading as glass and takes a third off
+ * that bill. The translucency, which is what actually makes the text legible,
+ * is unchanged.
+ *
+ * :root.dark rather than .dark, so this still wins in dark mode.
+ */
+@media (max-width: 47.999rem) {
+  :root,
+  :root.dark {
+    --glass-blur: 14px;
+  }
+}
+
 /* Snapping moves the page on the reader's behalf, so it goes when they have
    asked for less motion. */
 @media (prefers-reduced-motion: reduce) {

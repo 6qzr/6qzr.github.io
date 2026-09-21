@@ -93,6 +93,39 @@ change:
   .map(c => Math.max(0, c.scrollHeight - c.clientHeight));
 ```
 
+The card shows a description (`brief`), one highlight and the chips. On a phone
+the highlight folds away, because the same words wrap into roughly twice the
+lines there. The deck height is a share of the viewport on a desktop and a flat
+`40rem` on a phone: how tall the content is depends on how narrowly it wraps,
+which is a question about the width of the screen and not its height, and
+tying it to `vh` clipped the longest card by 74px on a 667px screen while
+leaving room to spare on a 932px one.
+
+**Astro drops a scoped rule whose class it cannot find in that component's own
+markup**, and a class applied through `class:list` counts as not found. A
+`.card--compact` rule written in `ProjectCard.astro` never reached the
+stylesheet at all, silently. Deck-only overrides therefore live in
+`Projects.astro` as `.deck__card :global(.card)`, which is not pruned. Check a
+new rule actually exists before trusting it:
+
+```js
+[...document.styleSheets].flatMap(s => [...s.cssRules])
+  .filter(r => r.cssText.includes('your-class'));
+```
+
+**The deck needs clearance above it.** The cards behind the front one are
+lifted and turned, so their top corners stand about 47px proud of it at
+1280px wide. With only the heading's own margin above, they landed on top of
+the line of text there. `.deck__cards` carries a `margin-top` for them to rise
+into; if the fan gets steeper, that has to grow with it.
+
+**The `#work` section clips horizontally.** The fan leans right and the deal
+throws a card most of a deck-width sideways, both past the edge of a phone.
+Unclipped, the document got wider than the window on every deal and iOS Safari
+shifted the page sideways in response, which reads as the page shaking. It is
+`overflow-x: clip`, not `hidden`: `hidden` would make the section a scroll
+container, which on iOS can still be panned.
+
 ## Design notes
 
 **The landscape** is the photograph in `public/images/`, fixed behind the page.

@@ -14,7 +14,10 @@ interface Props {
 
 const { project, index, compact = false } = Astro.props;
 const { data } = project;
-const highlights = compact ? data.highlights.slice(0, 2) : data.highlights;
+// A deck card leads with the brief, so one strong proof point is all there is
+// room for. Two achievements and no description left a reader knowing how well
+// the thing worked without knowing what it was.
+const highlights = compact ? data.highlights.slice(0, 1) : data.highlights;
 
 const trackLabel = data.track === "security" ? "Security" : "Full stack";
 ---
@@ -34,6 +37,8 @@ const trackLabel = data.track === "security" ? "Security" : "Full stack";
   </h3>
 
   <p class="t-body card__tagline on-glass">{data.tagline}</p>
+
+  <p class="card__brief on-glass-soft">{data.brief}</p>
 
   <p class="t-small card__role on-glass-soft">{data.role}</p>
 
@@ -129,6 +134,11 @@ const trackLabel = data.track === "security" ? "Security" : "Full stack";
   .card__tagline {
     margin: 0;
     font-weight: 500;
+  }
+  .card__brief {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.55;
   }
   .card__role {
     margin: 0;

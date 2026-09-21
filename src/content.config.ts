@@ -13,6 +13,12 @@ const projects = defineCollection({
     /** Which half of the work this proves. Drives the card's accent. */
     track: z.enum(["security", "fullstack"]),
     tagline: z.string(),
+    /**
+     * Two or three sentences of plain description: what the thing is and what
+     * it does. The deck card leads with this, because a tagline plus a list of
+     * achievements told a reader everything except what they were looking at.
+     */
+    brief: z.string(),
     role: z.string(),
     period: z.string(),
     stack: z.array(z.string()).min(1),

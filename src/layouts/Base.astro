@@ -53,7 +53,18 @@ const personSchema = {
 <html lang="en" data-slides={slides ? "" : undefined}>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {/*
+      viewport-fit=cover lets the fixed landscape run under the notch and the
+      home indicator on an iPhone instead of being letterboxed by two grey
+      bands. Everything that must stay clear of them pads itself with
+      env(safe-area-inset-*), which is 0 everywhere else.
+    */}
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+
+    {/* Tints the Safari chrome to match the page, so the browser does not
+        frame a sky-blue site in white. */}
+    <meta name="theme-color" content="#f2f8fd" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#081722" media="(prefers-color-scheme: dark)" />
     {/* Do not leak the visited path to sites they click through to. */}
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <link rel="canonical" href={canonical} />

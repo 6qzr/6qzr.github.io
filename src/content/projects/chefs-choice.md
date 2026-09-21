@@ -2,6 +2,10 @@
 title: "Chef's Choice"
 track: "fullstack"
 tagline: "Three places to eat near you, and never the same three twice."
+brief: >-
+  A web app for the question nobody wants to answer at seven in the evening. It
+  sweeps the map around you for real restaurants and offers three: one safe, one
+  you have not tried, one a reach. Veto any of them and it remembers.
 role: "Personal project"
 period: "2026"
 stack:
@@ -11,8 +15,8 @@ stack:
   - "Google Places API"
   - "IndexedDB"
 highlights:
-  - "One button gives you a Safe Bet, a Something New and a Long Shot. Veto anything you do not want, and it remembers, so tomorrow is different from today."
   - "A rebuild measured rather than guessed: over a 60-day simulation on real Muscat data, unique suggestions went from 11% of slots to 83%, and the most-repeated place from 50 days out of 60 down to 3."
+  - "One button gives you a Safe Bet, a Something New and a Long Shot. Veto anything you do not want, and it remembers, so tomorrow is different from today."
   - "Discovery moved to a tiled OpenStreetMap sweep, which finds 505 places where Google's API caps at 20, including the Arabic-named local spots that popularity ranking buries under the chains."
   - "Google is now called about three times per spin instead of up to fifty, and the app works fully offline with no API key at all."
   - "Shipped with the security of its own deployment thought through: a restricted key, a referrer policy chosen so the restriction still works, and cache rules that stop returning visitors being stranded on an old build."

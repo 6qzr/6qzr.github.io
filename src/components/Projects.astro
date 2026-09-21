@@ -13,13 +13,13 @@ const projects = (await getCollection("projects", ({ data }) => data.featured)).
       <p class="t-eyebrow head__eyebrow on-scene">Selected work</p>
       <h2 class="t-h2 on-scene head__title">Three that carry weight.</h2>
       <p class="t-body head__note on-scene">
-        Tap the top card to deal the next one. The rest is on
+        Tap the top card to deal the next one. The rest is on{" "}
         <a href="https://github.com/6qzr" target="_blank" rel="noopener noreferrer">GitHub</a>.
       </p>
     </header>
 
     <div class="deck" data-card-stack>
-      <div class="deck__cards">
+      <div class="deck__cards" data-card-box>
         {projects.map((project, index) => (
           <div class="deck__card glass-deep" data-card>
             <ProjectCard project={project} index={index} compact />
@@ -69,6 +69,16 @@ const projects = (await getCollection("projects", ({ data }) => data.featured)).
   .section {
     position: relative;
     padding: var(--spacing-phi-3) 1rem;
+    /*
+      The fan leans right and the deal throws a card most of a card-width
+      sideways, both of which run past the edge of a phone. Unclipped, the
+      document got wider than the window on every deal and iOS Safari answered
+      by shifting the page sideways under the reader's thumb, which is the
+      shake. `clip` rather than `hidden`: hidden would make this a scroll
+      container, which on iOS can still be panned and would break the page's
+      scroll snapping.
+    */
+    overflow-x: clip;
   }
 
   .shell {
@@ -78,7 +88,7 @@ const projects = (await getCollection("projects", ({ data }) => data.featured)).
 
   .head {
     max-width: 50ch;
-    margin: 0 auto var(--spacing-phi-2);
+    margin: 0 auto var(--spacing-phi-1);
     text-align: center;
   }
   .head__eyebrow { margin: 0 0 0.6rem; }
@@ -99,6 +109,13 @@ const projects = (await getCollection("projects", ({ data }) => data.featured)).
   */
   .deck__cards {
     position: relative;
+    /*
+      Room above the deck for the fan to rise into. The cards behind the front
+      one are lifted and turned, so their top corners stand well clear of it,
+      and with only the head's own margin above they overlapped the line of
+      text there.
+    */
+    margin-top: 3.25rem;
     width: min(100%, 38rem);
     /*
       Tall enough for the longest card, because a deck whose height changed
@@ -112,8 +129,57 @@ const projects = (await getCollection("projects", ({ data }) => data.featured)).
 
   @media (min-width: 48rem) {
     .deck__cards {
-      height: clamp(30rem, 58vh, 32rem);
+      height: clamp(30rem, 60vh, 33rem);
       padding-right: 3rem;
+    }
+  }
+
+  /* ---- Phones ---------------------------------------------------------- */
+  @media (max-width: 47.999rem) {
+    /*
+      The browser decides whether a gesture scrolls the page before any
+      listener of ours runs, so which axis belongs to the deck has to be
+      declared rather than handled. Horizontal is ours, vertical stays the
+      page's, and the two never fight.
+    */
+    .deck__cards {
+      touch-action: pan-y;
+      /*
+        Fixed rather than a share of the viewport. The card has to be as tall
+        as its longest content, and that depends on how narrowly the words
+        wrap, which is a question about the width of the phone and not about
+        its height. Tying it to vh clipped the longest card by 74px on a 667px
+        screen and left room to spare on a 932px one.
+      */
+      height: 40rem;
+      /*
+        A card the full width of the phone leaves the fan nowhere to lean but
+        off the side of the screen. Narrower, and pushed to the left, gives it
+        room on the right where it actually goes.
+      */
+      width: calc(100% - 2.25rem);
+      justify-self: start;
+      margin-top: 2.5rem;
+    }
+
+    /*
+      A phone wraps the same words into roughly twice the lines, and the card
+      is a fixed height, so something has to give. The description stays,
+      because it is the part that says what the project is; the one proof
+      point folds away and the detail page, a tap away, carries all of them.
+    */
+    .deck__card :global(.card__highlights) {
+      display: none;
+    }
+
+    /*
+      The cards behind the front one are nine tenths covered. Keeping a live
+      backdrop-filter on each of them costs an iPhone a full-size blur per
+      frame for something almost nobody can see.
+    */
+    .deck__card:not(.is-front) {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
     }
   }
 
@@ -133,6 +199,17 @@ const projects = (await getCollection("projects", ({ data }) => data.featured)).
     transition:
       transform 620ms cubic-bezier(0.33, 0, 0.2, 1),
       box-shadow 300ms ease;
+    /* A tap on a card is a deal, not a text selection, and never a grey flash. */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /*
+    Promoted only while a card is actually in flight. Three permanently
+    promoted layers, each with a backdrop-filter over a fixed photograph, is
+    memory an iPhone spends the whole visit on an animation that runs for
+    720ms at a time.
+  */
+  .deck.is-flying .deck__card {
     will-change: transform;
   }
 
@@ -148,6 +225,12 @@ const projects = (await getCollection("projects", ({ data }) => data.featured)).
   .deck__card :global(.card) {
     height: 100%;
     overflow: hidden;
+    /* Tighter than a card on its own page: this one is a fixed height and now
+       carries a description as well. It is set here rather than on a modifier
+       class in ProjectCard, because Astro drops a scoped rule whose class it
+       cannot see in that component's own markup, and a class applied through
+       class:list is exactly that. :global is not pruned. */
+    gap: 0.5rem;
     background: none;
     border: none;
     box-shadow: none;
@@ -164,6 +247,16 @@ const projects = (await getCollection("projects", ({ data }) => data.featured)).
   .deck.is-ready .deck__card.is-front:hover {
     /* A small lift on hover, so it reads as something you can pick up. */
     filter: drop-shadow(0 18px 34px rgb(4 16 28 / 0.22));
+  }
+  /*
+    A finger has no hover. On a touch screen that rule fires on tap and sticks
+    there until something else is tapped, and a drop-shadow filter on a glass
+    card forces it to re-composite for as long as it lasts.
+  */
+  @media (hover: none) {
+    .deck.is-ready .deck__card.is-front:hover {
+      filter: none;
+    }
   }
 
   .deck__controls {
@@ -230,6 +323,16 @@ const projects = (await getCollection("projects", ({ data }) => data.featured)).
     clip-path: inset(50%);
     white-space: nowrap;
     border: 0;
+  }
+
+  /* 44px, which is the smallest thing a finger can be asked to hit. Declared
+     here rather than beside the other phone rules, because it overrides
+     .deck__button at the same specificity and so has to come after it. */
+  @media (hover: none) and (pointer: coarse) {
+    .deck__button {
+      width: 2.75rem;
+      height: 2.75rem;
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {

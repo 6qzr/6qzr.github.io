@@ -259,9 +259,16 @@ const education = timeline.filter((entry) => entry.kind === "education");
   }
 
   @media (min-width: 58rem) {
+    /*
+      Equal columns, and no align-items: start. The degree panel used to be
+      the wider of the two and each panel took its own content height, so two
+      cards sitting side by side were visibly different in both dimensions,
+      which reads as a mistake rather than as a choice. Stretching is the grid
+      default; the whitespace under the shorter list is the price of a pair
+      that matches.
+    */
     .edu {
-      grid-template-columns: 1.2fr 1fr;
-      align-items: start;
+      grid-template-columns: 1fr 1fr;
     }
   }
 </style>

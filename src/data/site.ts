@@ -180,6 +180,8 @@ export const timeline = [
     points: [
       "Specialised in cybersecurity and computing infrastructure. GPA 3.56.",
       "Dean's List 2021–2024, for honours and distinction across multiple terms.",
+      "Member of the College of Science Student Society, 2024 to 2025.",
+      "Worked on campus through the university's student employment scheme, and earlier as a teaching assistant.",
     ],
   },
 ] as const;

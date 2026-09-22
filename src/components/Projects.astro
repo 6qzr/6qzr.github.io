@@ -226,10 +226,8 @@ const projects = (await getCollection("projects", ({ data }) => data.featured)).
     height: 100%;
     overflow: hidden;
     /* Tighter than a card on its own page: this one is a fixed height and now
-       carries a description as well. It is set here rather than on a modifier
-       class in ProjectCard, because Astro drops a scoped rule whose class it
-       cannot see in that component's own markup, and a class applied through
-       class:list is exactly that. :global is not pruned. */
+       carries a description as well. It lives here, with the rest of the
+       deck's overrides, rather than as a modifier class in ProjectCard. */
     gap: 0.5rem;
     background: none;
     border: none;

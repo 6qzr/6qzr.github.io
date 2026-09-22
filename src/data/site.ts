@@ -130,9 +130,15 @@ export const stackGroupLabels: Record<StackGroup, string> = {
   devops: "Delivery",
 };
 
+/**
+ * `track` drives the accent, the same two-colour language the project cards
+ * use: green for building, sun for security. The Ooredoo rotation is security
+ * work and was rendering in the build colour alongside the two dev roles.
+ */
 export const timeline = [
   {
     kind: "work",
+    track: "build",
     role: "Backend .NET Developer & Team Lead",
     org: "Codeline / Rihal Bootcamp",
     place: "Muscat",
@@ -147,6 +153,7 @@ export const timeline = [
   },
   {
     kind: "work",
+    track: "build",
     role: "Full Stack Development Intern",
     org: "Rihal & Codeline",
     place: "Muscat",
@@ -159,6 +166,7 @@ export const timeline = [
   },
   {
     kind: "work",
+    track: "security",
     role: "Information Security Management",
     org: "Ooredoo",
     place: "Muscat",
@@ -172,6 +180,7 @@ export const timeline = [
   },
   {
     kind: "education",
+    track: "study",
     role: "BSc Computer Science",
     org: "Sultan Qaboos University",
     place: "Oman",

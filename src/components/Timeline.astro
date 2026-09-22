@@ -28,7 +28,7 @@ const education = timeline.filter((entry) => entry.kind === "education");
       {experience.map((entry, index) => (
         <li class="entry">
           <div class="entry__marker" aria-hidden="true">
-            <span class="entry__dot"></span>
+            <span class={`entry__dot entry__dot--${entry.track}`}></span>
           </div>
 
           {/*
@@ -45,7 +45,7 @@ const education = timeline.filter((entry) => entry.kind === "education");
             </div>
 
             <h3 class="on-glass entry__role">{entry.role}</h3>
-            <p class="t-small entry__org">{entry.org}</p>
+            <p class={`t-small entry__org entry__org--${entry.track}`}>{entry.org}</p>
 
             <ul class="entry__points">
               {entry.points.map((point) => (
@@ -77,7 +77,7 @@ const education = timeline.filter((entry) => entry.kind === "education");
           </div>
 
           <h3 class="on-glass entry__role">{entry.role}</h3>
-          <p class="t-small entry__org entry__org--edu">{entry.org}</p>
+          <p class={`t-small entry__org entry__org--${entry.track}`}>{entry.org}</p>
 
           <ul class="entry__points">
             {entry.points.map((point) => (
@@ -202,11 +202,25 @@ const education = timeline.filter((entry) => entry.kind === "education");
     color: var(--accent);
     font-weight: 500;
   }
-  .entry__org--edu {
+  /* Security work and the degree both take the sun accent; building takes
+     the green one it inherits from .entry__org. */
+  .entry__org--security,
+  .entry__org--study {
     color: var(--sun-500);
   }
-  :global(.dark) .entry__org--edu {
+  :global(.dark) .entry__org--security,
+  :global(.dark) .entry__org--study {
     color: var(--sun-400);
+  }
+
+  /* The marker on the thread follows the same rule, so the security role is
+     one of two colours on the timeline rather than a green dot with an amber
+     line of text under it. */
+  .entry__dot--security {
+    background: var(--sun-500);
+  }
+  :global(.dark) .entry__dot--security {
+    background: var(--sun-400);
   }
 
   .entry__points {

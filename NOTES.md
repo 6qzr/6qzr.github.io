@@ -101,17 +101,21 @@ which is a question about the width of the screen and not its height, and
 tying it to `vh` clipped the longest card by 74px on a 667px screen while
 leaving room to spare on a 932px one.
 
-**Astro drops a scoped rule whose class it cannot find in that component's own
-markup**, and a class applied through `class:list` counts as not found. A
-`.card--compact` rule written in `ProjectCard.astro` never reached the
-stylesheet at all, silently. Deck-only overrides therefore live in
-`Projects.astro` as `.deck__card :global(.card)`, which is not pruned. Check a
-new rule actually exists before trusting it:
+**The dev server will serve you a stale stylesheet.** After editing a
+component's `<style>` block, the markup hot-reloads while the CSS does not, so
+a rule you just wrote appears to have been dropped: the new class is on the
+element, the declaration is nowhere, and the old rule you replaced is still
+there. It survives a reload and a cache-busting query string. This has cost an
+hour twice, once diagnosed as Astro pruning the rule, which it does not do.
 
-```js
-[...document.styleSheets].flatMap(s => [...s.cssRules])
-  .filter(r => r.cssText.includes('your-class'));
+Before concluding anything about CSS that "did not apply", check the build
+rather than the dev server:
+
+```bash
+npm run build && grep -o "your-class" dist/_astro/*.css
 ```
+
+Restarting `npm run dev` clears it.
 
 **The deck needs clearance above it.** The cards behind the front one are
 lifted and turned, so their top corners stand about 47px proud of it at

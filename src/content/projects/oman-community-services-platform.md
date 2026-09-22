@@ -7,7 +7,7 @@ brief: >-
   API routes it to the department that owns that work, and both sides follow the
   ticket through to a rating when it closes.
 role: "Team lead, 4 engineers"
-period: "2026 · Codeline .NET Bootcamp capstone"
+period: "2026 · .NET Bootcamp capstone"
 stack:
   - "ASP.NET Core Web API"
   - "Entity Framework Core"
@@ -19,8 +19,8 @@ highlights:
   - "Designed a 10-entity relational model with automatic department routing, status workflows, comments, notifications and citizen feedback ratings."
   - "Built on a three-layer architecture (repository, service, controller) with soft deletes, role-based access scoping and DTO-based contracts."
   - "Delivered through a structured GitHub workflow: 56 tracked issues across two sprints."
-repo: null
-repoNote: "Academic capstone. The repository is private to the bootcamp cohort."
+repo: "https://github.com/OPAL2-DotNet-Bootcamp-2026/OmanCommunityServicesPlatform"
+repoNote: null
 order: 2
 featured: true
 ---
